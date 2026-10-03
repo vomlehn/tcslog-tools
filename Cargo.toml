@@ -1,0 +1,28 @@
+[package]
+name = "tcslog-tools"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/vomlehn/tcslog-tools"
+description = "Command-line tools for inspecting tcslog segment files: tcslog-dump and tcslog-dumphdr"
+readme = "README.md"
+keywords = ["telemetry", "logging", "segment", "recovery"]
+categories = ["command-line-utilities", "development-tools::debugging"]
+
+[dependencies]
+# Both tools only read. Turning off the default `write` feature keeps the
+# library's build-time timer resolution out of the build, so these tools
+# need no TIMER_RESOLUTION and no .cargo/config.toml.
+#
+# The path is a sibling checkout, used when both repositories are cloned
+# side by side; `cargo publish` substitutes the registry version for it.
+tcslog = { path = "../tcslog/tcslog", version = "0.1", default-features = false }
+clap = { version = "4", features = ["derive"] }
+
+[lints.rust]
+unsafe_op_in_unsafe_fn = "warn"
+rust_2018_idioms = { level = "warn", priority = -1 }
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
