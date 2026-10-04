@@ -28,7 +28,9 @@ struct Args {
     /// Segment file name suffix.
     suffix: String,
 
-    /// Print as hex bytes or text (default)
+    /// Decode payloads as UTF-8 text. Without it each payload byte is
+    /// printed as one character, which is what to use for telemetry that
+    /// is not text.
     #[arg(short, long)]
     text: bool,
 

@@ -14,6 +14,19 @@ library version it requires.
 [kac]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+Requires `tcslog` 0.2.
+
+### Fixed
+
+- `tcslog-dump --help` described `--text` as choosing between hex bytes and
+  text, with the default on the wrong half. There is no hex output in the tool:
+  both paths print text, differing only in whether the payload is decoded as
+  UTF-8 or each byte printed as the character of that value. The help string
+  now says that, matching what `README.md` and `docs/tcslog-tools.rst` already
+  said correctly. Behaviour is unchanged.
+
 ## [0.1.0] - 2026-10-03
 
 First release of `tcslog-tools`, two command-line tools for looking at a
@@ -63,4 +76,5 @@ cargo install tcslog-tools
   documentation is `docs/tcslog-tools.rst`.
 - Requires Rust 1.75 or later. Dual licensed under MIT OR Apache-2.0.
 
+[unreleased]: https://github.com/vomlehn/tcslog-tools/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.0
