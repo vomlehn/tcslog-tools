@@ -41,9 +41,12 @@ what to pipe into something else.
 - `-v`, `--verbose` — also print a block for every segment file the read
   passed through, a notice wherever telemetry was lost or a record did not
   fit, a marker at each session boundary, and totals at the end.
-- `-t`, `--text` — decode payloads as UTF-8 text. Without it each payload
-  byte is printed as one character, which is what to use for telemetry that
-  is not text.
+- `-t`, `--text` — display payloads as ASCII. A printable character prints as
+  itself; everything else prints as an escape — `\n`, `\r`, `\t`, `\\`, or
+  `\xNN` — so that no byte of telemetry can move the cursor, start an escape
+  sequence that swallows what follows, or break one record across two lines.
+  The escape also says which byte was there. Without the flag each payload
+  byte is printed as the character of that value, control bytes included.
 - `-h`, `--help` — print the options to standard output and exit 0, so the
   help can be piped. `--version` does the same. A usage error puts both the
   complaint and the help on standard error and exits 2, leaving standard

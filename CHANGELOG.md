@@ -14,6 +14,35 @@ library version it requires.
 [kac]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+Requires `tcslog` 0.2.
+
+### Changed
+
+- `tcslog-dump --text` now displays payloads as ASCII rather than decoding
+  them as UTF-8. A printable character prints as itself and everything else
+  prints as an escape — `\n`, `\r`, `\t`, `\\`, or `\xNN`.
+
+  UTF-8 was the wrong thing to ask for of telemetry that is not required to be
+  text, and `from_utf8_lossy` answered badly in both directions: it replaced
+  every byte it could not decode with one replacement character, losing which
+  byte had been there, while passing control bytes straight through to the
+  terminal — where an escape byte can start a sequence that swallows what
+  follows and a newline breaks one record across two lines. An escape says
+  which byte it was and disturbs nothing.
+
+  Rendering without the flag is unchanged: each payload byte prints as the
+  character of that value. The error-recovery suite exercises only that path
+  and is unaffected.
+
+### Added
+
+- Unit tests for both renderings, covering the ends of the printable range,
+  the escaped control bytes, bytes above the ASCII range, and a backslash in
+  the payload — which has to be escaped too, or `\x41` in a payload would read
+  as the escape for `A`.
+
 ## [0.1.2] - 2026-10-03
 
 Requires `tcslog` 0.2.
@@ -103,6 +132,7 @@ cargo install tcslog-tools
   documentation is `docs/tcslog-tools.rst`.
 - Requires Rust 1.75 or later. Dual licensed under MIT OR Apache-2.0.
 
+[unreleased]: https://github.com/vomlehn/tcslog-tools/compare/v0.1.2...HEAD
 [0.1.2]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.2
 [0.1.1]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.1
 [0.1.0]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.0

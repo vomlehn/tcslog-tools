@@ -82,9 +82,17 @@ what to pipe into something else. The options are:
     marker at each session boundary, and totals at the end.
 
 ``-t``, ``--text``
-    Decode payloads as UTF-8 text. Without it each payload byte is
-    printed as one character, which is what to use for telemetry that is
-    not text.
+    Display payloads as ASCII. A printable character prints as itself,
+    and everything else prints as an escape -- ``\n``, ``\r``, ``\t``,
+    ``\\``, or ``\xNN``. Telemetry is not required to be text, and a
+    payload that is not can carry a byte that moves the cursor, starts
+    an escape sequence that swallows whatever is printed after it, or
+    ends the line in the middle of a record. Escaping also says which
+    byte was there, which a replacement character would not.
+
+    Without the flag each payload byte is printed as the character of
+    that value, control bytes included, which is the older behaviour and
+    what the error-recovery suite checks.
 
 ``-h``, ``--help``
     Print the options on standard output and exit with status 0, so that

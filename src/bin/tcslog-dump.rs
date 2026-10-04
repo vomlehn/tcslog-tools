@@ -8,6 +8,7 @@
 //! ```
 
 use std::error::Error;
+use std::fmt::Write as _;
 
 use clap::error::ErrorKind;
 use clap::{CommandFactory, Parser};
@@ -29,9 +30,10 @@ struct Args {
     /// Segment file name suffix.
     suffix: String,
 
-    /// Decode payloads as UTF-8 text. Without it each payload byte is
-    /// printed as one character, which is what to use for telemetry that
-    /// is not text.
+    /// Display payloads as ASCII: a printable character as itself, and
+    /// anything else as an escape, so that no byte of telemetry can move
+    /// the cursor or break a record across two lines. Without it each
+    /// payload byte is printed as the character of that value.
     #[arg(short, long)]
     text: bool,
 
@@ -190,16 +192,33 @@ fn print_truncated_record(text: bool, buf: &[u8]) {
     );
 }
 
-fn format_msg(as_text: bool, buf: &[u8]) -> String {
-    if as_text {
-        String::from_utf8_lossy(buf).to_string()
-    } else {
-        let mut text = String::new();
-        for item in buf {
-            text.push(*item as char);
-        }
-        text
+fn format_msg(as_ascii: bool, buf: &[u8]) -> String {
+    if !as_ascii {
+        return buf.iter().map(|b| *b as char).collect();
     }
+    // ASCII means ASCII: a byte outside the printable range is shown as
+    // an escape rather than sent to the terminal, which a record dump
+    // needs in both directions. A control byte passed through can move
+    // the cursor, clear the screen, or start an escape sequence that
+    // swallows what follows, and a newline inside a payload would break
+    // one record across two lines. Going the other way, the escape says
+    // which byte was there, where a replacement character would not.
+    let mut out = String::with_capacity(buf.len());
+    for &b in buf {
+        match b {
+            // Before the printable range it falls in, so that a
+            // backslash in the payload cannot be read as one of ours.
+            b'\\' => out.push_str("\\\\"),
+            b'\n' => out.push_str("\\n"),
+            b'\r' => out.push_str("\\r"),
+            b'\t' => out.push_str("\\t"),
+            0x20..=0x7e => out.push(b as char),
+            _ => {
+                let _ = write!(out, "\\x{b:02x}");
+            }
+        }
+    }
+    out
 }
 
 fn print_header(prefix: &str, suffix: &str, h: &SegmentHeader) {
@@ -210,4 +229,55 @@ fn print_header(prefix: &str, suffix: &str, h: &SegmentHeader) {
     println!("    remaining:  {}", h.remaining);
     println!("    format:     {:?}", h.format);
     println!("    sequence:   {}", h.sequence);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::format_msg;
+
+    /// What `--text` asks for, byte by byte.
+    #[test]
+    fn ascii_shows_printable_characters_as_themselves() {
+        assert_eq!(format_msg(true, b"attitude nominal"), "attitude nominal");
+        // The ends of the printable range, which must not be escaped.
+        assert_eq!(format_msg(true, &[0x20, 0x7e]), " ~");
+    }
+
+    #[test]
+    fn ascii_escapes_what_would_disturb_the_line() {
+        // A newline would break one record across two lines, and an
+        // escape byte could swallow whatever followed it.
+        assert_eq!(format_msg(true, b"a\nb"), "a\\nb");
+        assert_eq!(format_msg(true, b"a\rb"), "a\\rb");
+        assert_eq!(format_msg(true, b"a\tb"), "a\\tb");
+        assert_eq!(format_msg(true, &[b'a', 0x1b, b'b']), "a\\x1bb");
+        assert_eq!(format_msg(true, &[0x00, 0x7f]), "\\x00\\x7f");
+    }
+
+    #[test]
+    fn ascii_escapes_everything_above_the_ascii_range() {
+        // Not ASCII, so not shown as a character: 0xe9 is `é` in
+        // Latin-1 and the first byte of a sequence in UTF-8, and the
+        // escape commits to neither reading.
+        assert_eq!(format_msg(true, &[0xe9, b'A', 0x80]), "\\xe9A\\x80");
+        assert_eq!(format_msg(true, &[0xff]), "\\xff");
+    }
+
+    #[test]
+    fn a_backslash_in_the_payload_is_escaped_too() {
+        // Otherwise `\x41` in a payload would read as the escape for
+        // `A`, and the rendering could not be undone.
+        assert_eq!(format_msg(true, br"a\b"), "a\\\\b");
+        assert_eq!(format_msg(true, br"\x41"), "\\\\x41");
+    }
+
+    #[test]
+    fn without_the_flag_each_byte_is_the_character_of_that_value() {
+        // The default is unchanged: bytes become code points, control
+        // bytes and all. Everything the error-recovery suite checks
+        // goes through here.
+        assert_eq!(format_msg(false, b"attitude nominal"), "attitude nominal");
+        assert_eq!(format_msg(false, &[0xe9, b'A', 0x80]), "\u{e9}A\u{80}");
+        assert_eq!(format_msg(false, b"a\\b"), "a\\b");
+    }
 }
