@@ -14,7 +14,7 @@ library version it requires.
 [kac]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## [0.1.4] - 2026-10-03
 
 Requires `tcslog` 0.2.
 
@@ -153,7 +153,7 @@ cargo install tcslog-tools
   documentation is `docs/tcslog-tools.rst`.
 - Requires Rust 1.75 or later. Dual licensed under MIT OR Apache-2.0.
 
-[unreleased]: https://github.com/vomlehn/tcslog-tools/compare/v0.1.3...HEAD
+[0.1.4]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.4
 [0.1.3]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.3
 [0.1.2]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.2
 [0.1.1]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.1
