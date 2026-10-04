@@ -14,6 +14,21 @@ library version it requires.
 [kac]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+Requires `tcslog` 0.2.
+
+### Added
+
+- `bin/make-releases` creates a GitHub release for each tag, with the notes
+  for each taken from `docs/release-notes/<version>.md`. A tag alone is enough
+  for this file's footer links, which resolve whether or not a release exists;
+  the releases exist so that page carries the version's notes rather than just
+  its commit. The notes are kept as files rather than extracted from here
+  because a release that changed neither tool says so in its notes and nowhere
+  in this file. The sibling `tcslog` repository carries the same script for
+  its own tags.
+
 ## [0.1.5] - 2026-10-04
 
 Requires `tcslog` 0.2.
@@ -170,6 +185,7 @@ cargo install tcslog-tools
   documentation is `docs/tcslog-tools.rst`.
 - Requires Rust 1.75 or later. Dual licensed under MIT OR Apache-2.0.
 
+[unreleased]: https://github.com/vomlehn/tcslog-tools/compare/v0.1.5...HEAD
 [0.1.5]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.5
 [0.1.4]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.4
 [0.1.3]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.3
