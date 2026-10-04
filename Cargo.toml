@@ -7,7 +7,7 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/vomlehn/tcslog-tools"
 description = "Command-line tools for inspecting tcslog segment files: tcslog-dump and tcslog-dumphdr"
 readme = "README.md"
-keywords = ["telemetry", "logging", "autonomous", "recovery", "drone"]
+keywords = ["telemetry", "logging", "autonomous", "spacecraft", "drone"]
 # Five is the most crates.io allows. The first two are what these are --
 # command-line tools for looking at stored data when something went
 # wrong -- and the rest are the vehicles the data comes off. aerospace

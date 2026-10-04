@@ -29,6 +29,13 @@ Requires `tcslog` 0.2.
   in this file. The sibling `tcslog` repository carries the same script for
   its own tags.
 
+### Changed
+
+- The keyword `recovery` becomes `spacecraft`. The five are meant to be what
+  these tools are and the vehicles the data comes off, and `recovery` was
+  neither. Keywords are published metadata, so crates.io shows the old set
+  until the next release.
+
 ## [0.1.5] - 2026-10-04
 
 Requires `tcslog` 0.2.
