@@ -7,8 +7,19 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/vomlehn/tcslog-tools"
 description = "Command-line tools for inspecting tcslog segment files: tcslog-dump and tcslog-dumphdr"
 readme = "README.md"
-keywords = ["telemetry", "logging", "segment", "recovery"]
-categories = ["command-line-utilities", "development-tools::debugging"]
+keywords = ["telemetry", "logging", "autonomous", "recovery", "drone"]
+# Five is the most crates.io allows. The first two are what these are --
+# command-line tools for looking at stored data when something went
+# wrong -- and the rest are the vehicles the data comes off. aerospace
+# and aerospace::drones are parent and child, which lists them under
+# both. Not embedded: the library is, these run on the ground.
+categories = [
+    "command-line-utilities",
+    "development-tools::debugging",
+    "aerospace",
+    "aerospace::drones",
+    "science::robotics",
+]
 
 [dependencies]
 # Both tools only read. Turning off the default `write` feature keeps the
