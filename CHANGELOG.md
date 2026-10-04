@@ -14,6 +14,23 @@ library version it requires.
 [kac]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+Requires `tcslog` 0.2.
+
+### Added
+
+- A library target carrying the README as the crate's documentation, which is
+  what docs.rs renders. These are two command-line programs, so there had been
+  no library to document and so no docs.rs page for the crate at all -- only
+  one per binary, which is not where anyone looks first. The target exports
+  nothing and no dependent has reason to link it. The README is included
+  rather than copied, so the page cannot drift from what crates.io shows.
+- The README points at the documentation: `docs/tcslog-tools.rst` for these
+  tools at greater length, and `docs/tcslog.rst` in the `tcslog` repository
+  for the log format they read and the recovery rules they report on, those
+  belonging to the library rather than here.
+
 ## [0.1.4] - 2026-10-03
 
 Requires `tcslog` 0.2.
@@ -153,6 +170,7 @@ cargo install tcslog-tools
   documentation is `docs/tcslog-tools.rst`.
 - Requires Rust 1.75 or later. Dual licensed under MIT OR Apache-2.0.
 
+[unreleased]: https://github.com/vomlehn/tcslog-tools/compare/v0.1.4...HEAD
 [0.1.4]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.4
 [0.1.3]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.3
 [0.1.2]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.2

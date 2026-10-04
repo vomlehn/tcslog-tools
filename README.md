@@ -80,6 +80,17 @@ cd tcslog-tools && cargo build
 `cargo publish` substitutes the registry version for that path, so a release
 does not depend on the layout.
 
+## Documentation
+
+The manual is `docs/tcslog-tools.rst` in [the
+repository](https://github.com/vomlehn/tcslog-tools), which covers both tools
+at greater length than this page; `make -C docs` renders it to
+`docs/tcslog-tools.html`.
+
+The log format these tools read, the record formats, and the recovery rules
+they report on belong to the library and are described in `docs/tcslog.rst`
+in [the tcslog repository](https://github.com/vomlehn/tcslog).
+
 ## License
 
 Dual licensed under MIT OR Apache-2.0.
