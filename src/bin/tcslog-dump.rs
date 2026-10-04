@@ -33,7 +33,8 @@ struct Args {
     /// Display payloads as ASCII: a printable character as itself, and
     /// anything else as an escape, so that no byte of telemetry can move
     /// the cursor or break a record across two lines. Without it each
-    /// payload byte is printed as the character of that value.
+    /// payload byte is printed as two lower-case hexadecimal digits,
+    /// separated by one space.
     #[arg(short, long)]
     text: bool,
 
@@ -194,7 +195,21 @@ fn print_truncated_record(text: bool, buf: &[u8]) {
 
 fn format_msg(as_ascii: bool, buf: &[u8]) -> String {
     if !as_ascii {
-        return buf.iter().map(|b| *b as char).collect();
+        // Hexadecimal is the rendering that assumes nothing. Telemetry
+        // is bytes, and most of it is not text at all: a fixed-format
+        // record is counters and flags, and showing those as characters
+        // says nothing about them while handing the terminal control
+        // bytes to act on. Two digits a byte, lower case, one space
+        // between, so a byte can be read off by eye and counted
+        // against the length in the trailer.
+        let mut out = String::with_capacity(buf.len() * 3);
+        for (i, b) in buf.iter().enumerate() {
+            if i > 0 {
+                out.push(' ');
+            }
+            let _ = write!(out, "{b:02x}");
+        }
+        return out;
     }
     // ASCII means ASCII: a byte outside the printable range is shown as
     // an escape rather than sent to the terminal, which a record dump
@@ -272,12 +287,20 @@ mod tests {
     }
 
     #[test]
-    fn without_the_flag_each_byte_is_the_character_of_that_value() {
-        // The default is unchanged: bytes become code points, control
-        // bytes and all. Everything the error-recovery suite checks
-        // goes through here.
-        assert_eq!(format_msg(false, b"attitude nominal"), "attitude nominal");
-        assert_eq!(format_msg(false, &[0xe9, b'A', 0x80]), "\u{e9}A\u{80}");
-        assert_eq!(format_msg(false, b"a\\b"), "a\\b");
+    fn without_the_flag_each_byte_is_two_hexadecimal_digits() {
+        assert_eq!(format_msg(false, &[0xe9, b'A', 0x80]), "e9 41 80");
+        // Lower case, and the leading zero kept, so every byte is two
+        // columns wide and they line up down the page.
+        assert_eq!(format_msg(false, &[0x00, 0x0f, 0xff]), "00 0f ff");
+        assert_eq!(format_msg(false, b"ab"), "61 62");
+    }
+
+    #[test]
+    fn hexadecimal_separates_bytes_without_trailing_space() {
+        // One space between, none at either end: a trailing space would
+        // run into the trailer the caller prints after the payload.
+        assert_eq!(format_msg(false, &[0x01]), "01");
+        assert_eq!(format_msg(false, &[]), "");
+        assert_eq!(format_msg(false, &[1, 2, 3]).matches(' ').count(), 2);
     }
 }

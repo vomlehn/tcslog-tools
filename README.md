@@ -36,7 +36,9 @@ tcslog-dump <dir> <prefix> <suffix> [--verbose] [--text]
 ```
 
 Without options it prints one line per record and nothing else, which is
-what to pipe into something else.
+what to pipe into something else. A payload prints as hexadecimal: two
+lower-case digits a byte, one space between, which assumes nothing about
+telemetry that is mostly not text.
 
 - `-v`, `--verbose` — also print a block for every segment file the read
   passed through, a notice wherever telemetry was lost or a record did not
@@ -45,8 +47,8 @@ what to pipe into something else.
   itself; everything else prints as an escape — `\n`, `\r`, `\t`, `\\`, or
   `\xNN` — so that no byte of telemetry can move the cursor, start an escape
   sequence that swallows what follows, or break one record across two lines.
-  The escape also says which byte was there. Without the flag each payload
-  byte is printed as the character of that value, control bytes included.
+  The escape also says which byte was there. Without the flag a payload
+  prints as hexadecimal.
 - `-h`, `--help` — print the options to standard output and exit 0, so the
   help can be piped. `--version` does the same. A usage error puts both the
   complaint and the help on standard error and exits 2, leaving standard

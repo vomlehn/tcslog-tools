@@ -14,6 +14,27 @@ library version it requires.
 [kac]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+Requires `tcslog` 0.2.
+
+### Changed
+
+- `tcslog-dump` now prints a payload as hexadecimal by default: two lower-case
+  digits a byte, separated by one space. It had printed each byte as the
+  character of that value, which is Latin-1 rather than anything asked for, and
+  which handed the terminal control bytes to act on.
+
+  Hexadecimal is the rendering that assumes nothing. Telemetry is bytes and
+  most of it is not text at all — a fixed-format record is counters and flags,
+  which say nothing shown as characters — so reading a payload as text is now
+  what `--text` is for, and the default shows the bytes.
+
+  **Output changes for every caller**, not only those passing a flag. The 20
+  expected-output files in the `tcslog` repository's error-recovery suite were
+  regenerated; every payload line there was confirmed to decode back to exactly
+  what it had shown, with no structural line changed.
+
 ## [0.1.3] - 2026-10-03
 
 Requires `tcslog` 0.2.
@@ -132,6 +153,7 @@ cargo install tcslog-tools
   documentation is `docs/tcslog-tools.rst`.
 - Requires Rust 1.75 or later. Dual licensed under MIT OR Apache-2.0.
 
+[unreleased]: https://github.com/vomlehn/tcslog-tools/compare/v0.1.3...HEAD
 [0.1.3]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.3
 [0.1.2]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.2
 [0.1.1]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.1

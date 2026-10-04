@@ -90,9 +90,12 @@ what to pipe into something else. The options are:
     ends the line in the middle of a record. Escaping also says which
     byte was there, which a replacement character would not.
 
-    Without the flag each payload byte is printed as the character of
-    that value, control bytes included, which is the older behaviour and
-    what the error-recovery suite checks.
+    Without the flag a payload prints as hexadecimal: two lower-case
+    digits for each byte, separated by one space. That is the rendering
+    that assumes nothing. Telemetry is bytes, and most of it is not text
+    at all -- a fixed-format record is counters and flags, which say
+    nothing when shown as characters -- so the default shows the bytes
+    and leaves reading them as text to the flag.
 
 ``-h``, ``--help``
     Print the options on standard output and exit with status 0, so that
