@@ -87,7 +87,11 @@ what to pipe into something else. The options are:
     not text.
 
 ``-h``, ``--help``
-    Print the options and exit. A usage error exits with status 2.
+    Print the options on standard output and exit with status 0, so that
+    the help can be piped. ``--version`` does the same. A usage error
+    puts both the complaint and the help on standard error and exits
+    with status 2, which leaves standard output carrying nothing but
+    what was asked for.
 
 From a checkout of the ``tcslog`` repository, without installing::
 

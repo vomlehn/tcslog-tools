@@ -44,7 +44,10 @@ what to pipe into something else.
 - `-t`, `--text` — decode payloads as UTF-8 text. Without it each payload
   byte is printed as one character, which is what to use for telemetry that
   is not text.
-- `-h`, `--help` — print the options and exit. A usage error exits 2.
+- `-h`, `--help` — print the options to standard output and exit 0, so the
+  help can be piped. `--version` does the same. A usage error puts both the
+  complaint and the help on standard error and exits 2, leaving standard
+  output carrying nothing but what was asked for.
 
 ## tcslog-dumphdr
 

@@ -18,16 +18,16 @@ use std::collections::BTreeSet;
 use std::path::Path;
 use std::process::Command;
 
-/// `--version` is `clap`'s, is understood without being told, and is
-/// documented by neither file on purpose. Every other long option a tool
-/// offers has to appear in both.
-const UNDOCUMENTED_BY_DESIGN: &[&str] = &["--version"];
-
 /// The long options a tool reports in its own `--help`.
+///
+/// There is no list of exceptions. Every long option a tool offers,
+/// `clap`'s own `--help` and `--version` included, has to appear in both
+/// documents; an exception would be a place a tool could grow an
+/// undocumented option.
 ///
 /// * `exe` -- path to the built binary, from `CARGO_BIN_EXE_*`.
 ///
-/// Returns the options, `--version` excluded.
+/// Returns the options.
 fn options_offered(exe: &str) -> BTreeSet<String> {
     let out = Command::new(exe)
         .arg("--help")
@@ -44,9 +44,6 @@ fn options_offered(exe: &str) -> BTreeSet<String> {
     // above it names none of them, so scanning the whole output for
     // long options yields exactly the set offered.
     long_options(&help)
-        .into_iter()
-        .filter(|o| !UNDOCUMENTED_BY_DESIGN.contains(&o.as_str()))
-        .collect()
 }
 
 /// The long options named anywhere in a document.

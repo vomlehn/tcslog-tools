@@ -17,6 +17,7 @@
 use std::fs::File;
 use std::io;
 
+use clap::error::ErrorKind;
 use clap::{CommandFactory, Parser};
 
 use tcslog::{format_timestamp, SegId, SegmentHeader};
@@ -31,9 +32,17 @@ struct Args {
 
 fn main() {
     let args = Args::try_parse().unwrap_or_else(|e| {
+        // `--help` and `--version` are requests, not mistakes. Clap's
+        // own exit writes them to standard output and exits 0, which is
+        // what a caller piping the output into a pager expects.
+        if matches!(e.kind(), ErrorKind::DisplayHelp | ErrorKind::DisplayVersion) {
+            e.exit();
+        }
+        // Everything else is a usage error. Both the complaint and the
+        // help that answers it go to standard error, leaving standard
+        // output to carry nothing but what was asked for.
         eprintln!("{e}");
-        let _ = Args::command().print_help();
-        eprintln!();
+        eprintln!("{}", Args::command().render_help());
         std::process::exit(2);
     });
 

@@ -18,6 +18,16 @@ library version it requires.
 
 Requires `tcslog` 0.2.
 
+### Fixed
+
+- `--help` and `--version` now write to standard output and exit 0 in both
+  tools. They had gone through the same arm as a usage error, writing to
+  standard error and exiting 2, so `tcslog-dump --help | less` showed nothing
+  and a script checking the status saw a failure. A usage error still exits 2,
+  and now puts both the complaint and the help on standard error rather than
+  splitting them across the two streams, which leaves standard output carrying
+  nothing but what was asked for.
+
 ### Added
 
 - A test that the options each tool offers and the options the documentation
