@@ -14,6 +14,23 @@ library version it requires.
 [kac]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+Requires `tcslog` 0.2.
+
+### Added
+
+- A test that the options each tool offers and the options the documentation
+  lists are the same set, in both directions, run by `make test`. Every option
+  is described in three places — the `clap` help string, `README.md`, and
+  `docs/tcslog-tools.rst` — and the `--text` drift fixed in 0.1.1 is what three
+  copies produce. The *set* is what a test can hold: the help string is
+  deliberately terse and the manual deliberately is not, so requiring them to
+  match word for word would make one of them worse. An option added without
+  being documented, or documented after being removed, now fails the build; a
+  description that is merely wrong still does not, and only reading the code
+  catches that.
+
 ## [0.1.1] - 2026-10-03
 
 Requires `tcslog` 0.2.
@@ -76,5 +93,6 @@ cargo install tcslog-tools
   documentation is `docs/tcslog-tools.rst`.
 - Requires Rust 1.75 or later. Dual licensed under MIT OR Apache-2.0.
 
+[unreleased]: https://github.com/vomlehn/tcslog-tools/compare/v0.1.1...HEAD
 [0.1.1]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.1
 [0.1.0]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.0
