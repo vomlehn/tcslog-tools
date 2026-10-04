@@ -164,14 +164,14 @@ dependencies = [
 
 [[package]]
 name = "tcslog"
-version = "0.2.5"
+version = "0.2.6"
 dependencies = [
  "thiserror",
 ]
 
 [[package]]
 name = "tcslog-tools"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "clap",
  "tcslog",
