@@ -1,9 +1,7 @@
 # Makefile for tcslog-tools
 
-# Run every recipe under bash with pipefail. Without it, the exit
-# status of a pipeline is the status of its last stage, so a failing
-# `cargo build ... | tee build.out` would report success and `make
-# install` would happily install a stale binary.
+# Run every recipe under bash with pipefail, so a failing stage in the
+# middle of a pipeline is not hidden by a succeeding last stage.
 SHELL := /bin/bash
 .SHELLFLAGS := -eu -o pipefail -c
 
@@ -11,19 +9,13 @@ SHELL := /bin/bash
 RM      := rm -f
 RMDIR   := rm -rf
 
-# Extra flags for `cargo build`; `make release` sets it to --release.
-RELEASE =
-
 # The binaries this crate produces, which is also what install and
 # uninstall move in and out of $(PREFIX)/bin.
 BINS := tcslog-dump tcslog-dumphdr
 
-# Default target
-.PHONY: all
-all: build			## Build the tools (default target)
-
 # Display help. Every entry is the `##` comment on the target's own
 # rule, so the list cannot drift from the set of targets that exist.
+# This is also the default target.
 .PHONY: help
 help:				## Show this help
 	@echo "Makefile for tcslog-tools"
@@ -32,14 +24,6 @@ help:				## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) \
 		| sed 's/:.*## /|/' \
 		| awk -F'|' '{printf "  make %-14s - %s\n", $$1, $$2}'
-
-.PHONY: build
-build:				## Build the tools
-	( \
-		echo "Building the tools..."; \
-		cargo build $(RELEASE); \
-		echo "[OK] Build complete"; \
-	) 2>&1 | tee build.out
 
 .PHONY: test
 test:				## Run all tests
@@ -51,7 +35,6 @@ test:				## Run all tests
 clean:				## Remove build artifacts
 	@echo "Cleaning build artifacts..."
 	-cargo clean
-	$(RM) build.out
 	@echo "[OK] Clean complete"
 
 .PHONY: distclean
@@ -66,7 +49,7 @@ PREFIX  ?= $(HOME)
 DESTDIR ?=
 
 .PHONY: install
-install: build			## Install the binaries globally
+install:			## Install the binaries globally
 	@echo "Installing $(BINS) to $(DESTDIR)$(PREFIX)/bin..."
 	cargo install --path . --root $(DESTDIR)$(PREFIX)
 	@echo "[OK] Installed to $(DESTDIR)$(PREFIX)/bin/"
@@ -89,9 +72,9 @@ check:				## Run cargo check, clippy, and fmt --check
 format:				## Format the code with cargo fmt
 	cargo fmt
 
-# Create release build. Reuses `build` so there is one build path.
+# Create release build.
 .PHONY: release
 release: test			## Build with optimizations into target/release
 	@echo "Creating release build..."
-	$(MAKE) build RELEASE=--release
+	cargo build --release
 	@echo "[OK] Release binaries are in target/release/"
