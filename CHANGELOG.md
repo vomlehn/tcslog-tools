@@ -32,6 +32,14 @@ Requires `tcslog` 0.3.
   not match 0.3. A build of these tools against `tcslog` 0.2 is equally
   correct and will go on working for anyone who has one; this says which
   release they are built against from here.
+- The manual's prerequisites and the README now name the library version
+  these tools are built against, and say what that version decides: which
+  stored segment file formats a build understands. Neither had named it, so
+  this file was the only place that said so, and it says it per release
+  rather than for the build someone is about to make. The prerequisites
+  also account for the `WriteCallbacks` change behind the move, since a
+  reader who meets it in the library's own documentation has reason to ask
+  whether it reaches these tools. It does not.
 
 ## [0.1.6] - 2026-10-04
 

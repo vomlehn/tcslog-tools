@@ -35,6 +35,27 @@ A Rust toolchain of version 1.75 or later. No ``TIMER_RESOLUTION`` is
 needed: that value is required only when creating segment files, and
 neither tool creates one.
 
+The ``tcslog`` library, version 0.3. Which stored segment file formats a
+build of these tools understands follows from that version rather than
+from this crate's: a build reads a file whose major format version
+matches the library's and whose minor version is no greater.
+
+That requirement is 0.3 because of a change to the library's writing
+side, which does not reach these tools. ``WriteCallbacks``, the
+callbacks a writer is given, was a structure of three function pointers
+through 0.2.x and is a trait of three methods from 0.3.0, so that an
+implementation can keep whatever state the callbacks need. It breaks
+every caller that writes; neither tool writes, and taking the library
+with its default features off leaves its ``write`` module out of this
+build altogether, so there is nothing here to break. The records the
+tools read are the same records, the stored format having stayed at
+0.1.0 across that release.
+
+The requirement moves only because a caret requirement on 0.2 does not
+match 0.3. A copy of these tools already built against ``tcslog`` 0.2 is
+equally correct and goes on working; this says which release they are
+built against from here.
+
 Installing
 ----------
 

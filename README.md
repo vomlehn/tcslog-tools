@@ -11,7 +11,15 @@ been renamed or copied out of its log.
 
 Both tools only read. They take `tcslog` with its default `write` feature
 turned off, so neither needs the `TIMER_RESOLUTION` the writing side
-requires at build time.
+requires at build time. Nor does the writing side's API reach them:
+`WriteCallbacks` became a trait in `tcslog` 0.3.0, where it had been a
+structure of function pointers, which breaks every caller that writes and
+leaves these two untouched.
+
+The library version required is 0.3. That version, not this crate's, is what
+decides which stored segment file formats a build understands: it reads a
+file whose major format version matches the library's and whose minor
+version is no greater.
 
 ## Installing
 
