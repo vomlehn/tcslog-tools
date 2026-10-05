@@ -14,6 +14,25 @@ library version it requires.
 [kac]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+Requires `tcslog` 0.3.
+
+### Changed
+
+- The `tcslog` requirement becomes 0.3. That release turns `WriteCallbacks`
+  from a structure of function pointers into a trait, which is a breaking
+  change to the library's writing side -- and these tools do not write: they
+  take the library with its default features off, so the `write` module is
+  not even compiled here. Nothing in either binary changes, and the records
+  they read are the same records, the stored format being unchanged at
+  0.1.0.
+
+  The requirement still has to move, because a caret requirement on 0.2 does
+  not match 0.3. A build of these tools against `tcslog` 0.2 is equally
+  correct and will go on working for anyone who has one; this says which
+  release they are built against from here.
+
 ## [0.1.6] - 2026-10-04
 
 Requires `tcslog` 0.2.
@@ -192,6 +211,7 @@ cargo install tcslog-tools
   documentation is `docs/tcslog-tools.rst`.
 - Requires Rust 1.75 or later. Dual licensed under MIT OR Apache-2.0.
 
+[unreleased]: https://github.com/vomlehn/tcslog-tools/compare/v0.1.6...HEAD
 [0.1.6]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.6
 [0.1.5]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.5
 [0.1.4]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.4

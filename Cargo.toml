@@ -28,7 +28,7 @@ categories = [
 #
 # The path is a sibling checkout, used when both repositories are cloned
 # side by side; `cargo publish` substitutes the registry version for it.
-tcslog = { path = "../tcslog/tcslog", version = "0.2", default-features = false }
+tcslog = { path = "../tcslog/tcslog", version = "0.3", default-features = false }
 clap = { version = "4", features = ["derive"] }
 
 [lints.rust]
