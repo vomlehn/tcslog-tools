@@ -14,7 +14,7 @@ library version it requires.
 [kac]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## [0.1.8] - 2026-10-06
 
 Requires `tcslog` 0.4.
 
@@ -39,6 +39,15 @@ Requires `tcslog` 0.4.
   not match 0.4. A build of these tools against `tcslog` 0.3 is equally
   correct and will go on working for anyone who has one; this says which
   release they are built against from here.
+
+- The manual's prerequisites and the README name 0.4 as the library version
+  these tools are built against, as 0.1.7 had them name 0.3. The
+  prerequisites now account for both of the library's breaking changes
+  rather than only the first, since a reader who meets either in the
+  library's own documentation has reason to ask whether it reaches these
+  tools. Neither does: `WriteCallbacks` is on the writing side, which is not
+  compiled here, and `Record` is what the iterator yields, which neither tool
+  uses.
 
 ## [0.1.7] - 2026-10-04
 
@@ -245,6 +254,7 @@ cargo install tcslog-tools
   documentation is `docs/tcslog-tools.rst`.
 - Requires Rust 1.75 or later. Dual licensed under MIT OR Apache-2.0.
 
+[0.1.8]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.8
 [0.1.7]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.7
 [0.1.6]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.6
 [0.1.5]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.5
