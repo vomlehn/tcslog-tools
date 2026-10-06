@@ -11,12 +11,15 @@ been renamed or copied out of its log.
 
 Both tools only read. They take `tcslog` with its default `write` feature
 turned off, so neither needs the `TIMER_RESOLUTION` the writing side
-requires at build time. Nor does the writing side's API reach them:
-`WriteCallbacks` became a trait in `tcslog` 0.3.0, where it had been a
-structure of function pointers, which breaks every caller that writes and
-leaves these two untouched.
+requires at build time. The library's last two breaking changes have both
+been outside what these use: `WriteCallbacks` became a trait in 0.3.0,
+where it had been a structure of function pointers, which breaks every
+caller that writes; and `Record` gained a field in 0.4.0, which breaks a
+caller that builds or exhaustively destructures one. Neither tool writes,
+and neither names `Record` — both read through `LogRead::read` into a
+buffer of their own.
 
-The library version required is 0.3. That version, not this crate's, is what
+The library version required is 0.4. That version, not this crate's, is what
 decides which stored segment file formats a build understands: it reads a
 file whose major format version matches the library's and whose minor
 version is no greater.

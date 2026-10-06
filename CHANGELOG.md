@@ -14,6 +14,32 @@ library version it requires.
 [kac]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+Requires `tcslog` 0.4.
+
+### Changed
+
+- The `tcslog` requirement becomes 0.4. That release adds a field to
+  `Record`, the value `LogRead::iter` yields, which breaks a caller that
+  constructs or exhaustively destructures one. Neither tool does either:
+  both read through `LogRead::read` into a buffer of their own, and neither
+  names `Record` at all. Nothing in either binary changes, and the records
+  they read are the same records, the stored format being unchanged at
+  0.1.0.
+
+  The new field says whether the record handed back is a whole one or only
+  its front. `tcslog-dump` already reports that distinction, because `read`
+  always made it: a record cut short arrives as `ReadTruncated` carrying the
+  bytes recovered, and the tool prints them marked. What 0.4.0 fixes is the
+  iterator, which handed partial records over unmarked — an interface these
+  tools never used.
+
+  The requirement still has to move, because a caret requirement on 0.3 does
+  not match 0.4. A build of these tools against `tcslog` 0.3 is equally
+  correct and will go on working for anyone who has one; this says which
+  release they are built against from here.
+
 ## [0.1.7] - 2026-10-04
 
 Requires `tcslog` 0.3.

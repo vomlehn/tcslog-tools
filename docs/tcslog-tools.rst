@@ -35,26 +35,40 @@ A Rust toolchain of version 1.75 or later. No ``TIMER_RESOLUTION`` is
 needed: that value is required only when creating segment files, and
 neither tool creates one.
 
-The ``tcslog`` library, version 0.3. Which stored segment file formats a
+The ``tcslog`` library, version 0.4. Which stored segment file formats a
 build of these tools understands follows from that version rather than
 from this crate's: a build reads a file whose major format version
 matches the library's and whose minor version is no greater.
 
-That requirement is 0.3 because of a change to the library's writing
-side, which does not reach these tools. ``WriteCallbacks``, the
-callbacks a writer is given, was a structure of three function pointers
-through 0.2.x and is a trait of three methods from 0.3.0, so that an
-implementation can keep whatever state the callbacks need. It breaks
-every caller that writes; neither tool writes, and taking the library
-with its default features off leaves its ``write`` module out of this
-build altogether, so there is nothing here to break. The records the
-tools read are the same records, the stored format having stayed at
-0.1.0 across that release.
+That requirement has moved twice, each time for a change to a part of
+the library these tools do not use.
 
-The requirement moves only because a caret requirement on 0.2 does not
-match 0.3. A copy of these tools already built against ``tcslog`` 0.2 is
-equally correct and goes on working; this says which release they are
-built against from here.
+``WriteCallbacks``, the callbacks a writer is given, was a structure of
+three function pointers through 0.2.x and is a trait of three methods
+from 0.3.0, so that an implementation can keep whatever state the
+callbacks need. It breaks every caller that writes; neither tool writes,
+and taking the library with its default features off leaves its
+``write`` module out of this build altogether, so there is nothing here
+to break.
+
+``Record``, the value ``LogRead::iter()`` yields, gained a field in
+0.4.0 saying whether the record is a whole one or only its front. That
+breaks a caller that builds or exhaustively destructures one; neither
+tool does either, and neither names ``Record``, both reading through
+``LogRead::read()`` into a buffer of their own. ``tcslog-dump`` already
+reports the distinction the field carries, because ``read()`` always
+made it: a record cut short arrives as ``ReadTruncated`` with the bytes
+recovered, and the tool prints them marked. It was the iterator that
+handed partial records back unmarked, and the iterator is what 0.4.0
+fixes.
+
+The records the tools read are the same records across both releases,
+the stored format having stayed at 0.1.0 throughout.
+
+The requirement moves only because a caret requirement on 0.3 does not
+match 0.4. A copy of these tools already built against ``tcslog`` 0.3,
+or 0.2, is equally correct and goes on working; this says which release
+they are built against from here.
 
 Installing
 ----------
