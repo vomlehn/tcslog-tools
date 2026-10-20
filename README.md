@@ -9,6 +9,9 @@ found. `tcslog-dumphdr` prints one segment file's header, reading the bytes
 it is handed and never the file's name, so it also serves a file that has
 been renamed or copied out of its log.
 
+The library is used from Rust, C/C++, and Python 3, and all three write the
+same stored format, so these tools read a log whichever of them wrote it.
+
 Both tools only read. They take `tcslog` with its default `write` feature
 turned off, so neither needs the `TIMER_RESOLUTION` the writing side
 requires at build time. The library's last two breaking changes have both

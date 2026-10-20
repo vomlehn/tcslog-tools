@@ -14,6 +14,10 @@ Introduction
 recovers, and ``tcslog-dumphdr``, which prints one segment file's
 header.
 
+The library they read with is used from Rust, C/C++, and Python 3, and
+the stored format does not depend on which of them wrote a log, so
+these tools read any Tcslog log whatever language its writer was in.
+
 They are a crate separate from the ``tcslog`` library, in its own
 repository, because they only read a log: they want neither the
 library's ``write`` feature nor the build-time timer resolution that
