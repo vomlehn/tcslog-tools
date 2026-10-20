@@ -30,8 +30,12 @@ version is no greater.
 ## Installing
 
 ```sh
-cargo install tcslog-tools
+cargo install --locked tcslog-tools
 ```
+
+`--locked` builds with the dependency versions this crate was tested with,
+which support Rust 1.75. Without it, Cargo before 1.84 picks the newest
+versions, some of which need a newer Rust.
 
 Or from a checkout, into `$HOME/bin`:
 

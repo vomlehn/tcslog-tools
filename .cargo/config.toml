@@ -1,0 +1,9 @@
+# Resolve dependencies to the newest versions that still support the
+# rust-version in Cargo.toml (1.75), rather than the newest outright.
+# Without it a `cargo update` run on a current toolchain locks crates
+# that need edition 2024, and the build on 1.75 fails before compiling
+# anything. Cargo older than 1.84 ignores this table, which is why the
+# lock file is committed and `cargo install --locked` is what the README
+# recommends.
+[resolver]
+incompatible-rust-versions = "fallback"

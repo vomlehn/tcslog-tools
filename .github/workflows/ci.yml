@@ -1,0 +1,54 @@
+# Runs make check and make test against the sibling tcslog checkout, as
+# they run on a developer's machine, and builds and tests under Rust
+# 1.75, the rust-version Cargo.toml declares, with the committed lock
+# file.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check-and-test:
+    name: make check, make test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: tcslog-tools
+      # The tcslog dependency is a path to a sibling checkout.
+      - uses: actions/checkout@v4
+        with:
+          repository: vomlehn/tcslog
+          path: tcslog
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - name: make check
+        working-directory: tcslog-tools
+        run: make check
+      - name: make test
+        working-directory: tcslog-tools
+        run: make test
+
+  msrv:
+    name: Rust 1.75, the declared rust-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: tcslog-tools
+      - uses: actions/checkout@v4
+        with:
+          repository: vomlehn/tcslog
+          path: tcslog
+      - uses: dtolnay/rust-toolchain@1.75
+      - name: cargo test --locked
+        working-directory: tcslog-tools
+        run: cargo test --locked

@@ -14,6 +14,26 @@ library version it requires.
 [kac]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+Requires `tcslog` 0.4.
+
+### Fixed
+
+- The crate declares Rust 1.75 but did not build on it: the lock file held
+  clap 4.6, whose `clap_lex` needs edition 2024 and so Rust 1.85. Dependencies
+  are now resolved to the newest versions that support 1.75, through
+  `incompatible-rust-versions = "fallback"` in `.cargo/config.toml`, and the
+  installation instructions say `cargo install --locked`, which is what makes
+  an older Cargo use them.
+
+### Added
+
+- GitHub Actions CI running `make check` and `make test` against the sibling
+  `tcslog` checkout, and `cargo test --locked` under Rust 1.75.
+- The README and manual say the tools read a log whichever language wrote
+  it: Rust, C/C++, or Python 3.
+
 ## [0.1.8] - 2026-10-06
 
 Requires `tcslog` 0.4.

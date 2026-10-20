@@ -79,7 +79,11 @@ Installing
 
 Install both tools from the registry::
 
-    cargo install tcslog-tools
+    cargo install --locked tcslog-tools
+
+``--locked`` builds with the dependency versions this crate was tested
+with, which support Rust 1.75. Without it, Cargo before 1.84 picks the
+newest versions of every dependency, some of which need a newer Rust.
 
 Or from a checkout. The ``tcslog`` dependency is a path to a sibling
 checkout, so clone both repositories side by side::
