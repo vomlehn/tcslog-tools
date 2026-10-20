@@ -34,6 +34,10 @@ Requires `tcslog` 0.4.
 - The README and manual say the tools read a log whichever language wrote
   it: Rust, C/C++, or Python 3.
 
+### Changed
+
+- The library's manual is referred to by its new name, `docs/manual.rst`.
+
 ## [0.1.8] - 2026-10-06
 
 Requires `tcslog` 0.4.

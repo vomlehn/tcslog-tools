@@ -106,7 +106,7 @@ at greater length than this page; `make -C docs` renders it to
 `docs/tcslog-tools.html`.
 
 The log format these tools read, the record formats, and the recovery rules
-they report on belong to the library and are described in `docs/tcslog.rst`
+they report on belong to the library and are described in `docs/manual.rst`
 in [the tcslog repository](https://github.com/vomlehn/tcslog).
 
 ## License

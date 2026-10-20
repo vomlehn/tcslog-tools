@@ -26,7 +26,7 @@ have to build the writing side to do it.
 
 The log format they read, the record formats, and the recovery rules
 they report on are described in the library's documentation,
-``docs/tcslog.rst`` in the `tcslog repository
+``docs/manual.rst`` in the `tcslog repository
 <https://github.com/vomlehn/tcslog>`_.
 
 Building and Installation
