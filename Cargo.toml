@@ -5,7 +5,7 @@ edition = "2021"
 rust-version = "1.75"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/vomlehn/tcslog-tools"
-description = "Command-line tools for inspecting tcslog segment files: tcslog-dump and tcslog-dumphdr"
+description = "Command-line tools for inspecting tcslog segment files: tcslog-dump and tcslog-dumphdr, part of the work on integrating tcslog with NASA's cFS and JPL's F Prime"
 readme = "README.md"
 keywords = ["telemetry", "logging", "autonomous", "spacecraft", "drone"]
 # Five is the most crates.io allows. The first two are what these are --
