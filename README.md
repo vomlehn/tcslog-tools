@@ -114,11 +114,20 @@ does not depend on the layout.
 The manual is `docs/tcslog-tools.rst` in [the
 repository](https://github.com/vomlehn/tcslog-tools), which covers both tools
 at greater length than this page; `make -C docs` renders it to
-`docs/tcslog-tools.html`.
+`docs/tcslog-tools.html`, which is committed beside it and published: see
+below.
 
 The log format these tools read, the record formats, and the recovery rules
 they report on belong to the library and are described in `docs/manual.rst`
 in [the tcslog repository](https://github.com/vomlehn/tcslog).
+
+## See also
+
+- [The tcslog-tools manual](https://vomlehn.github.io/tcslog-tools/docs/tcslog-tools.html):
+  both tools, at greater length than this page.
+- [The tcslog manual](https://vomlehn.github.io/tcslog/docs/manual.html): the
+  log format these tools read, the record formats, and the recovery rules
+  they report on.
 
 ## License
 
