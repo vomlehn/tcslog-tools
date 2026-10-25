@@ -59,9 +59,14 @@ fn long_options(text: &str) -> BTreeSet<String> {
     let bytes: Vec<char> = text.chars().collect();
     let mut i = 0;
     while i + 2 < bytes.len() {
-        if bytes[i] == '-' && bytes[i + 1] == '-' && bytes[i + 2].is_ascii_alphabetic() {
+        if bytes[i] == '-'
+            && bytes[i + 1] == '-'
+            && bytes[i + 2].is_ascii_alphabetic()
+        {
             let mut j = i + 2;
-            while j < bytes.len() && (bytes[j].is_ascii_alphanumeric() || bytes[j] == '-') {
+            while j < bytes.len()
+                && (bytes[j].is_ascii_alphanumeric() || bytes[j] == '-')
+            {
                 j += 1;
             }
             found.insert(bytes[i..j].iter().collect::<String>());
@@ -80,7 +85,8 @@ fn long_options(text: &str) -> BTreeSet<String> {
 /// Returns its contents.
 fn document(name: &str) -> String {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join(name);
-    std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    std::fs::read_to_string(&path)
+        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 /// Compares what a tool offers with what a document lists.

@@ -1,0 +1,16 @@
+# Editor settings for this repository: https://editorconfig.org
+root = true
+
+# No line of code is wider than 80 columns, counting a tab as eight.
+[{*.rs,*.toml,*.yml,Makefile,bin/*}]
+max_line_length = 80
+tab_width = 8
+
+# rustfmt indents with four spaces.
+[*.rs]
+indent_style = space
+indent_size = 4
+
+# Recipes must start with a tab.
+[Makefile]
+indent_style = tab

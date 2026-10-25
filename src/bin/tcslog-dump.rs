@@ -49,7 +49,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         // `--help` and `--version` are requests, not mistakes. Clap's
         // own exit writes them to standard output and exits 0, which is
         // what a caller piping the output into a pager expects.
-        if matches!(e.kind(), ErrorKind::DisplayHelp | ErrorKind::DisplayVersion) {
+        if matches!(
+            e.kind(),
+            ErrorKind::DisplayHelp | ErrorKind::DisplayVersion
+        ) {
             e.exit();
         }
         // Everything else is a usage error. Both the complaint and the
@@ -134,8 +137,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 println!();
                 if args.verbose {
                     println!(
-                        "    (payload larger than {MAX_MESSAGE_SIZE}-byte buffer; \
-                        {n} bytes captured, remainder discarded)"
+                        "    (payload larger than {MAX_MESSAGE_SIZE}-byte \
+                        buffer; {n} bytes captured, remainder discarded)"
                     );
                 }
             }

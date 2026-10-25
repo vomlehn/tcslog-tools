@@ -35,7 +35,10 @@ fn main() {
         // `--help` and `--version` are requests, not mistakes. Clap's
         // own exit writes them to standard output and exits 0, which is
         // what a caller piping the output into a pager expects.
-        if matches!(e.kind(), ErrorKind::DisplayHelp | ErrorKind::DisplayVersion) {
+        if matches!(
+            e.kind(),
+            ErrorKind::DisplayHelp | ErrorKind::DisplayVersion
+        ) {
             e.exit();
         }
         // Everything else is a usage error. Both the complaint and the
@@ -62,7 +65,8 @@ fn run(args: &Args) -> Result<(), String> {
         SegmentHeader::read_from(&mut f).map_err(|e| format!("{name}: {e}"))?
     } else {
         let mut stdin = io::stdin().lock();
-        SegmentHeader::read_from(&mut stdin).map_err(|e| format!("<stdin>: {e}"))?
+        SegmentHeader::read_from(&mut stdin)
+            .map_err(|e| format!("<stdin>: {e}"))?
     };
 
     println!("{}", header_line(&header));

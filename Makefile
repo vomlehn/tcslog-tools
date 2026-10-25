@@ -38,7 +38,7 @@ clean:				## Remove build artifacts
 	@echo "[OK] Clean complete"
 
 .PHONY: distclean
-distclean: clean		## Remove build artifacts and all generated files
+distclean: clean		## Remove build artifacts and generated files
 	@echo "Removing all generated files..."
 	$(RMDIR) target
 	@echo "[OK] Project reset"
