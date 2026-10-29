@@ -25,9 +25,17 @@ use std::process::Command;
 /// documents; an exception would be a place a tool could grow an
 /// undocumented option.
 ///
-/// * `exe` -- path to the built binary, from `CARGO_BIN_EXE_*`.
+/// # Arguments
 ///
-/// Returns the options.
+/// * `exe` - Path to the built binary, from `CARGO_BIN_EXE_*`.
+///
+/// # Returns
+///
+/// The options.
+///
+/// # Panics
+///
+/// If the binary cannot be run.
 fn options_offered(exe: &str) -> BTreeSet<String> {
     let out = Command::new(exe)
         .arg("--help")
@@ -48,9 +56,13 @@ fn options_offered(exe: &str) -> BTreeSet<String> {
 
 /// The long options named anywhere in a document.
 ///
-/// * `text` -- the document.
+/// # Arguments
 ///
-/// Returns every `--option` it mentions. Both documents name an option
+/// * `text` - The document.
+///
+/// # Returns
+///
+/// Every `--option` it mentions. Both documents name an option
 /// in a usage line as well as in its own entry, which this does not
 /// distinguish and does not need to: the question is whether the option
 /// is spoken of at all.
@@ -80,9 +92,17 @@ fn long_options(text: &str) -> BTreeSet<String> {
 
 /// Reads one of the repository's documents.
 ///
-/// * `name` -- path relative to the crate root.
+/// # Arguments
 ///
-/// Returns its contents.
+/// * `name` - Path relative to the crate root.
+///
+/// # Returns
+///
+/// Its contents.
+///
+/// # Panics
+///
+/// If the document cannot be read.
 fn document(name: &str) -> String {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join(name);
     std::fs::read_to_string(&path)
@@ -91,10 +111,17 @@ fn document(name: &str) -> String {
 
 /// Compares what a tool offers with what a document lists.
 ///
-/// * `exe` -- path to the built binary.
-/// * `tool` -- the tool's name, for the failure message.
-/// * `doc_name` -- which document is being checked.
-/// * `listed` -- the options named anywhere in it.
+/// # Arguments
+///
+/// * `exe`      - Path to the built binary.
+/// * `tool`     - The tool's name, for the failure message.
+/// * `doc_name` - Which document is being checked.
+/// * `listed`   - The options named anywhere in it.
+///
+/// # Panics
+///
+/// If the tool offers an option the document does not mention, or the
+/// binary cannot be run.
 fn check(exe: &str, tool: &str, doc_name: &str, listed: &BTreeSet<String>) {
     let offered = options_offered(exe);
 

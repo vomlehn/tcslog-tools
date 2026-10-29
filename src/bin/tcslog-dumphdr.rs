@@ -30,6 +30,8 @@ struct Args {
     filename: Option<String>,
 }
 
+/// Parses the command line, prints the named segment file's header, and
+/// exits 2 on a usage error or 1 if the header cannot be read.
 fn main() {
     let args = Args::try_parse().unwrap_or_else(|e| {
         // `--help` and `--version` are requests, not mistakes. Clap's
@@ -56,6 +58,20 @@ fn main() {
 }
 
 /// Reads the header named by `args` and prints it.
+///
+/// # Arguments
+///
+/// * `args` - The parsed command line: the segment file to read, or
+///            none for standard input.
+///
+/// # Returns
+///
+/// Nothing of interest once the header line is printed.
+///
+/// # Errors
+///
+/// A message naming the file (or `<stdin>`) and the cause when the file
+/// cannot be opened or its header cannot be read or is invalid.
 fn run(args: &Args) -> Result<(), String> {
     // Read only the header: the rest of the file is the data section,
     // which this tool has no use for, and leaving it unread lets the
@@ -75,6 +91,15 @@ fn run(args: &Args) -> Result<(), String> {
 
 /// Renders every header field as comma-separated `field=value` pairs on
 /// one line.
+///
+/// # Arguments
+///
+/// * `h` - The segment file header to render.
+///
+/// # Returns
+///
+/// The line, without a trailing newline. Identifiers are rendered as
+/// dates and times and the other fields in decimal.
 fn header_line(h: &SegmentHeader) -> String {
     format!(
         "segment_id={}, session_id={}, max_size={}, remaining={}, \

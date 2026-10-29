@@ -44,6 +44,19 @@ struct Args {
     verbose: bool,
 }
 
+/// Parses the command line and prints every record of the log it names,
+/// with segment headers, session ends and a summary under `--verbose`.
+/// Exits 2 on a usage error.
+///
+/// # Returns
+///
+/// `Ok(())` once the whole log has been printed.
+///
+/// # Errors
+///
+/// The reader's error when the log cannot be opened, or when a read
+/// fails other than by reaching the end, crossing a session boundary,
+/// overflowing the buffer, or losing part of the log.
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::try_parse().unwrap_or_else(|e| {
         // `--help` and `--version` are requests, not mistakes. Clap's
@@ -178,6 +191,12 @@ fn print_record(text: bool, meta: Meta, buf: &[u8]) {
 /// Prints the leading bytes of a record too large for the read buffer.
 /// The record's own length and metadata are not available on this path,
 /// so the trailer states only what was captured.
+///
+/// # Arguments
+///
+/// * `text` - Whether to render the bytes as escaped ASCII rather than
+///            hexadecimal.
+/// * `buf`  - The bytes captured.
 fn print_partial_record(text: bool, buf: &[u8]) {
     let msg = format_msg(text, buf);
     print!("    {msg} ({} bytes captured, record truncated)", buf.len());
@@ -188,6 +207,12 @@ fn print_partial_record(text: bool, buf: &[u8]) {
 /// bytes are gone from the log rather than merely from this buffer, so
 /// the trailer says the record was cut short rather than that this
 /// reader could not hold it.
+///
+/// # Arguments
+///
+/// * `text` - Whether to render the bytes as escaped ASCII rather than
+///            hexadecimal.
+/// * `buf`  - The bytes recovered.
 fn print_truncated_record(text: bool, buf: &[u8]) {
     let msg = format_msg(text, buf);
     print!(
@@ -196,6 +221,19 @@ fn print_truncated_record(text: bool, buf: &[u8]) {
     );
 }
 
+/// Renders a payload for printing on one line.
+///
+/// # Arguments
+///
+/// * `as_ascii` - Whether to show printable ASCII as itself and every
+///                other byte (and the backslash) as an escape; otherwise
+///                each byte is two lower-case hexadecimal digits,
+///                separated by single spaces.
+/// * `buf`      - The payload.
+///
+/// # Returns
+///
+/// The rendering, which holds no control characters.
 fn format_msg(as_ascii: bool, buf: &[u8]) -> String {
     if !as_ascii {
         // Hexadecimal is the rendering that assumes nothing. Telemetry
@@ -239,6 +277,13 @@ fn format_msg(as_ascii: bool, buf: &[u8]) -> String {
     out
 }
 
+/// Prints a segment file's name and its header's fields, one per line.
+///
+/// # Arguments
+///
+/// * `prefix` - The log's segment file name prefix.
+/// * `suffix` - The log's segment file name suffix.
+/// * `h`      - The segment file's header.
 fn print_header(prefix: &str, suffix: &str, h: &SegmentHeader) {
     println!("=== segment file: {}{}{} ===", prefix, h.segment_id, suffix);
     println!("    segment_id: {}", h.segment_id);
