@@ -172,3 +172,16 @@ useful for a file that has been renamed or copied out of its log, which
 is exactly the case in which the name cannot be trusted. It reads only
 the header, so the standard input form works on a pipe whose writer is
 still running. A read failure exits 1 and a usage error exits 2.
+
+See Also
+========
+
+`Tcslog manual <https://vomlehn.github.io/tcslog/docs/manual.html>`__
+    Tcslog is flight software that stores telemetry on board a vehicle that
+    is often out of contact. The manual says how to write a log, read it
+    back, and what each outcome of reading means.
+
+`Tcslog design <https://vomlehn.github.io/tcslog/docs/design.html>`__
+    The Tcslog specification: the on-disk format, the public interfaces,
+    the status codes and their ABI numbers, and the behaviour the library
+    is required to have.
