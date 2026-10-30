@@ -14,9 +14,10 @@ library version it requires.
 [kac]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## [0.2.0] - 2026-10-30
 
-Requires `tcslog` 0.4.
+Requires `tcslog` 0.5. Built with it, the tools read logs in its stored
+format, 1.0.0, and refuse those written by tcslog 0.4.3 and earlier.
 
 ### Fixed
 
@@ -52,6 +53,8 @@ Requires `tcslog` 0.4.
 
 ### Changed
 
+- Built against `tcslog` 0.5 rather than 0.4, so the tools read logs in its
+  stored format, 1.0.0, and not those of tcslog 0.4.3 and earlier.
 - `make install` installs under `/opt/tcs` by default rather than `$HOME`,
   and builds with `cargo build --release --locked` and copies the
   binaries, rather than using `cargo install`, which left `.crates.toml`
@@ -300,6 +303,7 @@ cargo install tcslog-tools
   documentation is `docs/tcslog-tools.rst`.
 - Requires Rust 1.75 or later. Dual licensed under MIT OR Apache-2.0.
 
+[0.2.0]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.2.0
 [0.1.8]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.8
 [0.1.7]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.7
 [0.1.6]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.6
