@@ -1,0 +1,17 @@
+Package: tcslog-tools
+Version: @VERSION@
+Architecture: @ARCH@
+Maintainer: David VomLehn <dvomlehn@gmail.com>
+Installed-Size: @SIZE@
+Depends: @DEPENDS@
+Section: utils
+Priority: optional
+Homepage: https://github.com/vomlehn/tcslog-tools
+Description: tools for inspecting tcslog segment files
+ tcslog-dump reads a whole tcslog log, a directory of segment files
+ sharing a prefix and suffix, and prints the records it recovers with
+ the losses it found. tcslog-dumphdr prints one segment file's header.
+ .
+ Both only read, and both have the tcslog library built in, so this
+ package needs nothing of tcslog's installed. They install under
+ /opt/tcs/bin.

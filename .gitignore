@@ -26,3 +26,6 @@ rustc-ice-*.txt
 #  For a more nuclear option (not recommended) you can uncomment the
 #  following to ignore the entire idea folder.
 #.idea/
+
+# What `make stage`, `make deb` and `make rpm` make
+/build/

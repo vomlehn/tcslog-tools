@@ -90,15 +90,64 @@ checkout, so clone both repositories side by side::
 
     git clone https://github.com/vomlehn/tcslog.git
     git clone https://github.com/vomlehn/tcslog-tools.git
-    make -C tcslog-tools install
+    sudo make -C tcslog-tools install
 
-That installs under your home directory; ``PREFIX`` chooses somewhere
-else and ``DESTDIR`` stages the install for packaging, and ``make
-uninstall`` removes both binaries again, honouring the same two
-variables::
+That installs both tools in ``/opt/tcs/bin``, the tree the TCS packages
+share under FHS 3.0's ``/opt/<package>``, and this manual, the README,
+the licences and the changelog in ``/opt/tcs/share/doc/tcslog-tools``.
+The library is linked in, so neither tool needs ``tcslog`` installed to
+run. ``PREFIX`` chooses somewhere else, ``DESTDIR`` stages the install,
+and ``make uninstall`` removes it again, honouring the same variables::
 
-    make install PREFIX=/usr/local
-    make install PREFIX=/usr DESTDIR=/tmp/stage
+    make install PREFIX=$HOME           # into $HOME/bin
+    make install DESTDIR=/tmp/stage
+
+``HOOKS=1`` also installs ``/etc/profile.d/tcslog-tools.sh``, which adds
+``/opt/tcs/bin`` to a login shell's ``PATH`` unless it is there already.
+It is left out unless asked for, so that an install touches nothing in
+``/etc`` its installer did not mean it to, and it needs the default
+``PREFIX``, since it names ``/opt/tcs``. Cargo installs from a checkout
+as well, with ``cargo install --locked --path . --root /opt/tcs``, but
+leaves its own record of what it installed, ``.crates.toml`` and
+``.crates2.json``, in that root.
+
+Under ``STRIP=1``, the default, install strips both binaries with
+``strip --strip-unneeded``, which takes about a quarter off each;
+``STRIP=0`` keeps them as cargo built them, for a debugger.
+
+Login shells find ``/opt/tcs/bin`` through
+``/etc/profile.d/tcslog-tools.sh``, but sudo, cron and other minimal
+environments do not read it, and so do not find the programs. To make
+them available everywhere, link them into ``/usr/local/bin``, which is
+on every one of those paths, sudo's ``secure_path`` included::
+
+    sudo /opt/tcs/sbin/tcslog-tools-links            # link them
+    sudo /opt/tcs/sbin/tcslog-tools-links --remove   # undo it
+
+``--dir`` names another directory, such as ``/opt/bin``. It links only
+this package's own programs, written into it when it was installed, so
+it never touches another TCS package's; it leaves anything already in
+the way alone, says so, and exits 1 once it has linked the rest. It is
+never run for you: removing the package removes its links, from
+``/usr/local/bin`` and ``/opt/bin``, but installing it makes none, the
+choice being the administrator's. After ``make install``, ``sudo make
+links`` and ``sudo make unlinks`` do the same, with ``LINKDIR`` naming
+the directory.
+
+Or as a package. ``make deb`` and ``make rpm`` build one in
+``build/packages``, ``tcslog-tools_<version>-1_<arch>.deb`` and
+``tcslog-tools-<version>-1.<arch>.rpm``, and ``make packages`` builds
+both, from one install into ``build/stage/tcslog-tools`` (``make
+stage``) with the hook and stripped as above, so the two hold the same
+files; the RPM is kept from stripping on its own. The ``1`` is the
+package's release, for a package rebuilt from the same source, which
+``DEB_REVISION`` sets for the .deb. Building them needs ``rst2html``
+from docutils and ``dpkg-shlibdeps`` from dpkg-dev; ``make rpm`` needs
+``rpmbuild``, which Debian has as ``sudo apt install rpm``, and where it
+is missing says so and builds nothing, without failing::
+
+    make -C tcslog-tools deb
+    sudo apt install ./tcslog-tools/build/packages/tcslog-tools_*.deb
 
 ``cargo publish`` substitutes the registry version for the path
 dependency, so a release does not depend on the side-by-side layout.

@@ -29,12 +29,34 @@ Requires `tcslog` 0.4.
 
 ### Added
 
+- Packages: `make deb` and `make rpm` build a `tcslog-tools` .deb and RPM,
+  and `make packages` both, from one install into
+  `build/stage/tcslog-tools` (`make stage`), as
+  `tcslog-tools_<version>-1_<arch>.deb` and
+  `tcslog-tools-<version>-1.<arch>.rpm`. The binaries they ship are
+  stripped unless `STRIP=0`, as are those `make install` installs. They
+  install under `/opt/tcs`, with `/etc/profile.d/tcslog-tools.sh` putting
+  `/opt/tcs/bin` on `PATH`.
+- `make install` installs the README, licences, changelog and HTML manual
+  in `share/doc/tcslog-tools`.
+- `/opt/tcs/sbin/tcslog-tools-links` links both tools into
+  `/usr/local/bin`, or `--dir`, for sudo, cron and other environments that
+  do not read `/etc/profile.d`, and `--remove` takes the links away; `make
+  links` and `make unlinks` run it after `make install`. Removing the
+  package removes its links; installing it makes none.
+
 - GitHub Actions CI running `make check` and `make test` against the sibling
   `tcslog` checkout, and `cargo test --locked` under Rust 1.75.
 - The README and manual say the tools read a log whichever language wrote
   it: Rust, C/C++, or Python 3.
 
 ### Changed
+
+- `make install` installs under `/opt/tcs` by default rather than `$HOME`,
+  and builds with `cargo build --release --locked` and copies the
+  binaries, rather than using `cargo install`, which left `.crates.toml`
+  and `.crates2.json` in the prefix. `HOOKS=1` also installs the
+  `/etc/profile.d` file a package does.
 
 - The library's manual is referred to by its new name, `docs/manual.rst`.
 

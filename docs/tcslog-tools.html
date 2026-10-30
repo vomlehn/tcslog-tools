@@ -447,15 +447,61 @@ checkout, so clone both repositories side by side:</p>
 <pre class="literal-block">
 git clone https://github.com/vomlehn/tcslog.git
 git clone https://github.com/vomlehn/tcslog-tools.git
-make -C tcslog-tools install
+sudo make -C tcslog-tools install
 </pre>
-<p>That installs under your home directory; <tt class="docutils literal">PREFIX</tt> chooses somewhere
-else and <tt class="docutils literal">DESTDIR</tt> stages the install for packaging, and <tt class="docutils literal">make
-uninstall</tt> removes both binaries again, honouring the same two
-variables:</p>
+<p>That installs both tools in <tt class="docutils literal">/opt/tcs/bin</tt>, the tree the TCS packages
+share under FHS 3.0's <tt class="docutils literal"><span class="pre">/opt/&lt;package&gt;</span></tt>, and this manual, the README,
+the licences and the changelog in <tt class="docutils literal"><span class="pre">/opt/tcs/share/doc/tcslog-tools</span></tt>.
+The library is linked in, so neither tool needs <tt class="docutils literal">tcslog</tt> installed to
+run. <tt class="docutils literal">PREFIX</tt> chooses somewhere else, <tt class="docutils literal">DESTDIR</tt> stages the install,
+and <tt class="docutils literal">make uninstall</tt> removes it again, honouring the same variables:</p>
 <pre class="literal-block">
-make install PREFIX=/usr/local
-make install PREFIX=/usr DESTDIR=/tmp/stage
+make install PREFIX=$HOME           # into $HOME/bin
+make install DESTDIR=/tmp/stage
+</pre>
+<p><tt class="docutils literal">HOOKS=1</tt> also installs <tt class="docutils literal"><span class="pre">/etc/profile.d/tcslog-tools.sh</span></tt>, which adds
+<tt class="docutils literal">/opt/tcs/bin</tt> to a login shell's <tt class="docutils literal">PATH</tt> unless it is there already.
+It is left out unless asked for, so that an install touches nothing in
+<tt class="docutils literal">/etc</tt> its installer did not mean it to, and it needs the default
+<tt class="docutils literal">PREFIX</tt>, since it names <tt class="docutils literal">/opt/tcs</tt>. Cargo installs from a checkout
+as well, with <tt class="docutils literal">cargo install <span class="pre">--locked</span> <span class="pre">--path</span> . <span class="pre">--root</span> /opt/tcs</tt>, but
+leaves its own record of what it installed, <tt class="docutils literal">.crates.toml</tt> and
+<tt class="docutils literal">.crates2.json</tt>, in that root.</p>
+<p>Under <tt class="docutils literal">STRIP=1</tt>, the default, install strips both binaries with
+<tt class="docutils literal">strip <span class="pre">--strip-unneeded</span></tt>, which takes about a quarter off each;
+<tt class="docutils literal">STRIP=0</tt> keeps them as cargo built them, for a debugger.</p>
+<p>Login shells find <tt class="docutils literal">/opt/tcs/bin</tt> through
+<tt class="docutils literal"><span class="pre">/etc/profile.d/tcslog-tools.sh</span></tt>, but sudo, cron and other minimal
+environments do not read it, and so do not find the programs. To make
+them available everywhere, link them into <tt class="docutils literal">/usr/local/bin</tt>, which is
+on every one of those paths, sudo's <tt class="docutils literal">secure_path</tt> included:</p>
+<pre class="literal-block">
+sudo /opt/tcs/sbin/tcslog-tools-links            # link them
+sudo /opt/tcs/sbin/tcslog-tools-links --remove   # undo it
+</pre>
+<p><tt class="docutils literal"><span class="pre">--dir</span></tt> names another directory, such as <tt class="docutils literal">/opt/bin</tt>. It links only
+this package's own programs, written into it when it was installed, so
+it never touches another TCS package's; it leaves anything already in
+the way alone, says so, and exits 1 once it has linked the rest. It is
+never run for you: removing the package removes its links, from
+<tt class="docutils literal">/usr/local/bin</tt> and <tt class="docutils literal">/opt/bin</tt>, but installing it makes none, the
+choice being the administrator's. After <tt class="docutils literal">make install</tt>, <tt class="docutils literal">sudo make
+links</tt> and <tt class="docutils literal">sudo make unlinks</tt> do the same, with <tt class="docutils literal">LINKDIR</tt> naming
+the directory.</p>
+<p>Or as a package. <tt class="docutils literal">make deb</tt> and <tt class="docutils literal">make rpm</tt> build one in
+<tt class="docutils literal">build/packages</tt>, <tt class="docutils literal"><span class="pre">tcslog-tools_&lt;version&gt;-1_&lt;arch&gt;.deb</span></tt> and
+<tt class="docutils literal"><span class="pre">tcslog-tools-&lt;version&gt;-1.&lt;arch&gt;.rpm</span></tt>, and <tt class="docutils literal">make packages</tt> builds
+both, from one install into <tt class="docutils literal"><span class="pre">build/stage/tcslog-tools</span></tt> (<tt class="docutils literal">make
+stage</tt>) with the hook and stripped as above, so the two hold the same
+files; the RPM is kept from stripping on its own. The <tt class="docutils literal">1</tt> is the
+package's release, for a package rebuilt from the same source, which
+<tt class="docutils literal">DEB_REVISION</tt> sets for the .deb. Building them needs <tt class="docutils literal">rst2html</tt>
+from docutils and <tt class="docutils literal"><span class="pre">dpkg-shlibdeps</span></tt> from dpkg-dev; <tt class="docutils literal">make rpm</tt> needs
+<tt class="docutils literal">rpmbuild</tt>, which Debian has as <tt class="docutils literal">sudo apt install rpm</tt>, and where it
+is missing says so and builds nothing, without failing:</p>
+<pre class="literal-block">
+make -C tcslog-tools deb
+sudo apt install ./tcslog-tools/build/packages/tcslog-tools_*.deb
 </pre>
 <p><tt class="docutils literal">cargo publish</tt> substitutes the registry version for the path
 dependency, so a release does not depend on the side-by-side layout.</p>

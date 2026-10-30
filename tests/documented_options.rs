@@ -184,14 +184,26 @@ fn neither_document_lists_an_option_no_tool_offers() {
     let mut offered = options_offered(env!("CARGO_BIN_EXE_tcslog-dump"));
     offered.extend(options_offered(env!("CARGO_BIN_EXE_tcslog-dumphdr")));
     // The manual shows how to run the library's sample, and both
-    // documents how to install with the tested lock file, which are
-    // cargo command lines and so name cargo options. Listed one by one
-    // rather than guessed at: a cargo option appearing in a new command
-    // line should fail this test and be added deliberately.
-    let cargos: BTreeSet<String> = ["--example", "--locked"]
-        .iter()
-        .map(|s| (*s).to_string())
-        .collect();
+    // documents how to install with the tested lock file, from a
+    // checkout into /opt/tcs among them, which are cargo command lines
+    // and so name cargo options; the README how install strips the
+    // binaries, which names strip's; and both how to link the programs
+    // into /usr/local/bin, which names tcslog-tools-links's. Listed one
+    // by one rather than guessed at: another program's option appearing
+    // in a new command line should fail this test and be added
+    // deliberately.
+    let cargos: BTreeSet<String> = [
+        "--dir",
+        "--example",
+        "--locked",
+        "--path",
+        "--remove",
+        "--root",
+        "--strip-unneeded",
+    ]
+    .iter()
+    .map(|s| (*s).to_string())
+    .collect();
 
     for name in ["README.md", "docs/tcslog-tools.rst"] {
         let doc = document(name);

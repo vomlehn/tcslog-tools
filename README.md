@@ -40,23 +40,78 @@ tcspecial's [`docs/third-party.rst`](https://github.com/vomlehn/tcspecial/blob/m
 
 ## Installing
 
+Both tools install in `/opt/tcs/bin`, under `/opt/tcs`, the tree the TCS
+packages share (FHS 3.0's `/opt/<package>`), with this README, the
+licences, the changelog and the HTML manual in
+`/opt/tcs/share/doc/tcslog-tools`, and `tcslog-tools-links`, which links
+them into `/usr/local/bin`, in `/opt/tcs/sbin`. The library is linked
+in, as Rust links its dependencies, so neither needs `tcslog` installed
+to run.
+
+As a package, built from a checkout (see *Building from a checkout*
+below for the layout it needs):
+
+```sh
+make deb        # build/packages/tcslog-tools_<version>-1_<arch>.deb
+make rpm        # build/packages/tcslog-tools-<version>-1.<arch>.rpm
+make packages   # both
+make packages STRIP=0   # both, unstripped
+sudo apt install ./build/packages/tcslog-tools_*.deb
+```
+
+Both are made from one install into `build/stage/tcslog-tools` (`make
+stage`), so they hold the same files. That install strips both binaries
+with `strip --strip-unneeded`, about a quarter off each; `STRIP=0` keeps
+them as cargo built them, for a debugger. The `-1` is the package's
+release, `DEB_REVISION` for the .deb, for a package rebuilt from the same
+source. Building them needs `rst2html` (`python3-docutils`)
+and `dpkg-shlibdeps` (`dpkg-dev`). `make rpm` needs `rpmbuild` (`sudo apt
+install rpm` on Debian) and says so, without failing, where it is
+missing. A package also installs `/etc/profile.d/tcslog-tools.sh`, which
+adds `/opt/tcs/bin` to `PATH` unless it is there already.
+
+Login shells find `/opt/tcs/bin` through `/etc/profile.d/tcslog-tools.sh`, but
+sudo, cron and other minimal environments do not read it, and do not
+find the programs. To make them available everywhere, link them into
+`/usr/local/bin`, which is on every one of those paths, sudo's
+`secure_path` included:
+
+```sh
+sudo /opt/tcs/sbin/tcslog-tools-links            # link them
+sudo /opt/tcs/sbin/tcslog-tools-links --remove   # undo it
+```
+
+`--dir` names another directory, such as `/opt/bin`. It links only this
+package's programs, leaves anything already in the way alone and says
+so, and is never run for you: removing the package removes its links,
+but installing it makes none. After `make install`, `sudo make links` and
+`sudo make unlinks` do the same, with `LINKDIR` naming the directory.
+
+Or straight from a checkout:
+
+```sh
+sudo make install               # under /opt/tcs, nothing in /etc
+sudo make install HOOKS=1       # with /etc/profile.d/tcslog-tools.sh
+make install PREFIX=$HOME       # into $HOME/bin
+```
+
+`DESTDIR` stages the install, and `make uninstall` removes it again,
+honouring the same variables. `make install` strips as the packages do,
+and `STRIP=0` keeps it from doing so. `HOOKS=1` needs the default
+`PREFIX`, since the file it installs names `/opt/tcs`.
+
+Or with cargo, from the registry or from a checkout:
+
 ```sh
 cargo install --locked tcslog-tools
+cargo install --locked --path . --root /opt/tcs
 ```
 
 `--locked` builds with the dependency versions this crate was tested with,
 which support Rust 1.75. Without it, Cargo before 1.84 picks the newest
-versions, some of which need a newer Rust.
-
-Or from a checkout, into `$HOME/bin`:
-
-```sh
-make install
-```
-
-`make install PREFIX=/usr/local` chooses somewhere else and `DESTDIR` stages
-the install for packaging. `make uninstall` removes both binaries again,
-honouring the same two variables.
+versions, some of which need a newer Rust. Cargo also leaves its own
+record of what it installed, `.crates.toml` and `.crates2.json`, in the
+root it is given, which is why `make install` does not use it.
 
 ## tcslog-dump
 
