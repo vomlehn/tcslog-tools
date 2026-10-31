@@ -556,6 +556,13 @@ at all -- a fixed-format record is counters and flags, which say
 nothing when shown as characters -- so the default shows the bytes
 and leaves reading them as text to the flag.</p>
 </dd>
+<dt><tt class="docutils literal"><span class="pre">--rec-size</span> &lt;bytes&gt;</tt></dt>
+<dd>The largest payload, in bytes, read without truncation: an unsigned
+integer of at least 1, and 65536 (64 KiB) unless given, the size
+tcslog's own record iterator reads into. A record with a longer
+payload prints cut short and marked as such, and <tt class="docutils literal"><span class="pre">--verbose</span></tt> says
+how many of its bytes were captured. The data header is read
+separately and does not count toward the size.</dd>
 <dt><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></dt>
 <dd>Print the options on standard output and exit with status 0, so that
 the help can be piped. <tt class="docutils literal"><span class="pre">--version</span></tt> does the same. A usage error

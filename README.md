@@ -129,7 +129,7 @@ root it is given, which is why `make install` does not use it.
 ## tcslog-dump
 
 ```sh
-tcslog-dump <dir> <prefix> <suffix> [--verbose] [--text]
+tcslog-dump <dir> <prefix> <suffix> [--verbose] [--text] [--rec-size <bytes>]
 ```
 
 Without options it prints one line per record and nothing else, which is
@@ -146,6 +146,10 @@ telemetry that is mostly not text.
   sequence that swallows what follows, or break one record across two lines.
   The escape also says which byte was there. Without the flag a payload
   prints as hexadecimal.
+- `--rec-size <bytes>` — the largest payload read without truncation, at
+  least 1; 64 KiB (65536) unless given. A record with a longer payload
+  prints cut short and marked, and `--verbose` says how many bytes were
+  captured. The data header is read separately and does not count.
 - `-h`, `--help` — print the options to standard output and exit 0, so the
   help can be piped. `--version` does the same. A usage error puts both the
   complaint and the help on standard error and exits 2, leaving standard

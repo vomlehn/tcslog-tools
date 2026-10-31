@@ -125,7 +125,7 @@ fn seg_id_date(id: SegId) -> String {
 mod tests {
     use super::*;
 
-    use tcslog::{Format, SeqId};
+    use tcslog::{Format, SeqId, VERSION_MINOR};
 
     #[test]
     fn line_renders_dates_and_decimals() {
@@ -136,6 +136,7 @@ mod tests {
             remaining: 17,
             format: Format::Fixed(64),
             sequence: SeqId::from_u64(3),
+            version_minor: VERSION_MINOR,
         };
         assert_eq!(
             header_line(&h),
@@ -154,6 +155,7 @@ mod tests {
             remaining: 0,
             format: Format::VariableTsRc,
             sequence: SeqId::ZERO,
+            version_minor: VERSION_MINOR,
         };
         let bytes = h.to_bytes();
         let back = SegmentHeader::from_bytes(&bytes).unwrap();

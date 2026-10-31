@@ -207,6 +207,14 @@ what to pipe into something else. The options are:
     nothing when shown as characters -- so the default shows the bytes
     and leaves reading them as text to the flag.
 
+``--rec-size <bytes>``
+    The largest payload, in bytes, read without truncation: an unsigned
+    integer of at least 1, and 65536 (64 KiB) unless given, the size
+    tcslog's own record iterator reads into. A record with a longer
+    payload prints cut short and marked as such, and ``--verbose`` says
+    how many of its bytes were captured. The data header is read
+    separately and does not count toward the size.
+
 ``-h``, ``--help``
     Print the options on standard output and exit with status 0, so that
     the help can be piped. ``--version`` does the same. A usage error

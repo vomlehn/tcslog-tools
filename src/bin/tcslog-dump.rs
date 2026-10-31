@@ -15,7 +15,9 @@ use clap::{CommandFactory, Parser};
 
 use tcslog::{record_trailer, LogError, LogRead, Meta, SegmentHeader};
 
-const MAX_MESSAGE_SIZE: usize = 256;
+/// The payload bytes a record is read into unless `--rec-size` says
+/// otherwise: 64 KiB, as tcslog's own record iterator reads.
+const DEFAULT_REC_SIZE: u32 = 64 * 1024;
 
 /// Print a tcslog file
 #[derive(Parser)]
@@ -42,6 +44,13 @@ struct Args {
     /// in addition to log messages.
     #[arg(short, long)]
     verbose: bool,
+
+    /// The largest payload, in bytes, read without truncation: a record
+    /// with a longer one is printed cut short and marked so. The data
+    /// header is read separately and does not count. At least 1.
+    #[arg(long, value_name = "BYTES", default_value_t = DEFAULT_REC_SIZE,
+          value_parser = clap::value_parser!(u32).range(1..))]
+    rec_size: u32,
 }
 
 /// Parses the command line and prints every record of the log it names,
@@ -84,7 +93,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut printed_header = false;
     let mut files_lost = 0u64;
     let mut total = 0u64;
-    let mut buf = vec![0u8; MAX_MESSAGE_SIZE];
+    let rec_size = args.rec_size;
+    let mut buf = vec![0u8; rec_size as usize];
 
     loop {
         let read_result = log.read(&mut buf);
@@ -150,7 +160,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 println!();
                 if args.verbose {
                     println!(
-                        "    (payload larger than {MAX_MESSAGE_SIZE}-byte \
+                        "    (payload larger than {rec_size}-byte \
                         buffer; {n} bytes captured, remainder discarded)"
                     );
                 }

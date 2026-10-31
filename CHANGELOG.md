@@ -16,10 +16,13 @@ library version it requires.
 
 ## [Unreleased]
 
-Requires `tcslog` 0.5, as 0.2.0 does.
+Requires the next `tcslog` release, whose stored format 1.1 widens a
+`VariableTsRc` record count to 48 bits; it still reads format 1.0.
 
 ### Added
 
+- `tcslog-dump --rec-size <bytes>` sets the largest payload read without
+  truncation.
 - `make lint-packages` checks the packages with lintian and rpmlint, and
   their shell scripts with shellcheck, and fails on any finding not
   overridden with its reason.
@@ -27,6 +30,11 @@ Requires `tcslog` 0.5, as 0.2.0 does.
   machine-readable format, `changelog.Debian.gz` and lintian overrides,
   and the RPM a `%changelog` and a `Group`, all made from the version as
   the package is built.
+
+### Changed
+
+- `tcslog-dump` reads a record's payload into 64 KiB by default, as
+  tcslog's record iterator does, rather than 256 bytes.
 
 ## [0.2.0] - 2026-10-30
 
