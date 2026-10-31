@@ -149,6 +149,24 @@ is missing says so and builds nothing, without failing::
     make -C tcslog-tools deb
     sudo apt install ./tcslog-tools/build/packages/tcslog-tools_*.deb
 
+The .deb also carries what Debian expects of every package, outside
+``/opt/tcs`` as the hook is: ``/usr/share/doc/tcslog-tools/copyright``,
+in Debian's machine-readable format, and ``changelog.Debian.gz``, both
+made as the package is built, from ``LICENSE-MIT`` and the version, and
+lintian's overrides, in ``/usr/share/lintian/overrides/tcslog-tools``.
+The RPM says the same in its own ``License`` and ``%changelog``.
+
+``make lint-packages`` checks the packages ``make packages`` built with
+lintian and rpmlint, and the shell scripts they run or install with
+shellcheck: the hook and ``tcslog-tools-links`` as the stage has them,
+the .deb's ``prerm``, the packaging scripts and ``bin/make-releases``.
+It skips, in a line, any of the three that is not installed, and fails
+on any finding that is not overridden. What is overridden is intended,
+and says why: for lintian in
+``packaging/deb/tcslog-tools/lintian-overrides``, which the .deb
+carries, and for rpmlint in ``packaging/rpm/rpmlint.toml``, which is not
+shipped.
+
 ``cargo publish`` substitutes the registry version for the path
 dependency, so a release does not depend on the side-by-side layout.
 

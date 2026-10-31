@@ -167,10 +167,23 @@ stage:				## Install into build/stage/tcslog-tools
 	chmod -R u+rwX,go=rX $(PKGSTAGE)
 	@echo "[OK] Staged under $(PKGSTAGE)"
 
+# The release's time, which dates the changelog entry each package
+# carries: that of the commit being built, so that building the same
+# commit again makes the same entry, or now outside a git clone. The
+# name is the one reproducible builds give it, so that a builder's own
+# SOURCE_DATE_EPOCH is taken. Worked out once, so that the .deb and the
+# .rpm are dated alike.
+ifndef SOURCE_DATE_EPOCH
+SOURCE_DATE_EPOCH := $(shell git log -1 --format=%ct 2>/dev/null || date +%s)
+endif
+
 # Build the .deb from the stage, with the control files in
 # packaging/deb/tcslog-tools. dpkg-shlibdeps works out what the binaries
 # need from the libraries they link, but wants a debian/control to read,
 # so it is given a minimal one in a directory of its own.
+# packaging/deb/debian-files.sh then adds what Debian expects outside
+# /opt/tcs and the RPM does not have: the copyright file, the Debian
+# changelog and the lintian overrides.
 #
 # DEB_REVISION is the Debian revision, for a package rebuilt from the
 # same source, as in tcspecial.
@@ -199,6 +212,8 @@ deb: stage			## Build the .deb in build/packages
 		$(DEB_DIR)/control > $$root/DEBIAN/control; \
 	install -m 644 $(DEB_DIR)/conffiles $$root/DEBIAN/; \
 	install -m 755 $(DEB_DIR)/prerm $$root/DEBIAN/; \
+	packaging/deb/debian-files.sh tcslog-tools tcslog-tools $$root \
+		$(DEB_VERSION) $(SOURCE_DATE_EPOCH); \
 	dpkg-deb --root-owner-group --build $$root \
 		$(PKGOUT)/tcslog-tools_$(DEB_VERSION)_$$arch.deb
 
@@ -225,6 +240,8 @@ rpm:				## Build the .rpm in build/packages
 		--define "_topdir $(RPM_TOP)" \
 		--define "_dbpath $(RPM_TOP)/db" \
 		--define "tcs_version $(VERSION)" \
+		--define "tcs_date $$(date -u -d @$(SOURCE_DATE_EPOCH) \
+			'+%a %b %d %Y')" \
 		--define "tcs_stage $(PKGSTAGE)" \
 		packaging/rpm/tcslog-tools.spec; \
 	cp $(RPM_TOP)/RPMS/*/tcslog-tools-$(VERSION)-*.rpm $(PKGOUT)/; \
@@ -232,6 +249,25 @@ rpm:				## Build the .rpm in build/packages
 
 .PHONY: packages
 packages: deb rpm		## Build both; STRIP=0 leaves them unstripped
+
+# Check the packages `make packages` built, and the shell scripts they
+# run or install, with lintian, rpmlint and shellcheck, any of which is
+# skipped in a line if it is not installed: see
+# packaging/lint-packages.sh. rpmlint is given packaging/rpm/rpmlint.toml,
+# which says why each finding it accepts is intended; the .deb carries
+# its own lintian overrides. The links script and the profile.d hook are
+# checked as the stage has them, with their placeholders filled in.
+.PHONY: lint-packages
+lint-packages:			## Lint the packages and their shell scripts
+	packaging/lint-packages.sh packaging/rpm/rpmlint.toml \
+		$(wildcard $(PKGOUT)/tcslog-tools_$(DEB_VERSION)_*.deb \
+			$(PKGOUT)/tcslog-tools-$(VERSION)-*.rpm) \
+		-- $(wildcard $(PKGSTAGE)/opt/tcs/sbin/*-links \
+			$(PKGSTAGE)/etc/profile.d/*.sh) \
+		$(wildcard $(addprefix $(DEB_DIR)/,preinst postinst prerm \
+			postrm)) \
+		packaging/deb/debian-files.sh packaging/lint-packages.sh \
+		bin/make-releases
 
 .PHONY: check
 check:				## Run cargo check, clippy, and fmt --check

@@ -14,6 +14,20 @@ library version it requires.
 [kac]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+Requires `tcslog` 0.5, as 0.2.0 does.
+
+### Added
+
+- `make lint-packages` checks the packages with lintian and rpmlint, and
+  their shell scripts with shellcheck, and fails on any finding not
+  overridden with its reason.
+- The .deb carries `/usr/share/doc/tcslog-tools/copyright`, in Debian's
+  machine-readable format, `changelog.Debian.gz` and lintian overrides,
+  and the RPM a `%changelog` and a `Group`, all made from the version as
+  the package is built.
+
 ## [0.2.0] - 2026-10-30
 
 Requires `tcslog` 0.5. Built with it, the tools read logs in its stored
@@ -303,6 +317,7 @@ cargo install tcslog-tools
   documentation is `docs/tcslog-tools.rst`.
 - Requires Rust 1.75 or later. Dual licensed under MIT OR Apache-2.0.
 
+[Unreleased]: https://github.com/vomlehn/tcslog-tools/compare/v0.2.0...HEAD
 [0.2.0]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.2.0
 [0.1.8]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.8
 [0.1.7]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.7

@@ -1,0 +1,20 @@
+# What rpmlint is to accept in the tcslog-tools RPM, read by `make
+# lint-packages` and never shipped. Each filter is a finding that is
+# intended, with why; anything else rpmlint reports is to be fixed.
+
+# Debian's rpmlint, unlike Fedora's, comes with no list of licences it
+# knows, and so calls every one invalid. rpmlint splits the SPDX
+# expression "MIT OR Apache-2.0" into its two licences itself; these are
+# the two.
+ValidLicenses = ["MIT", "Apache-2.0"]
+
+Filters = [
+	# An add-on package lives under /opt/<package>, as FHS 3.0 section
+	# 3.13 lays it out, and /opt/tcs is the tree every TCS package
+	# shares.
+	' dir-or-file-in-opt ',
+	# Words of the trade that rpmlint's dictionary does not have.
+	" spelling-error \\('dumphdr',",
+	# The packages are not signed.
+	' no-signature',
+]

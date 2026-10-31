@@ -70,6 +70,19 @@ install rpm` on Debian) and says so, without failing, where it is
 missing. A package also installs `/etc/profile.d/tcslog-tools.sh`, which
 adds `/opt/tcs/bin` to `PATH` unless it is there already.
 
+The .deb also carries what Debian expects of every package, outside
+`/opt/tcs` as the hook is: `/usr/share/doc/tcslog-tools/copyright`, in
+Debian's machine-readable format, and `changelog.Debian.gz`, both made
+as the package is built from `LICENSE-MIT` and the version, and
+lintian's overrides in `/usr/share/lintian/overrides/tcslog-tools`. The
+RPM says the same in its own `License` and `%changelog`. `make
+lint-packages` checks the packages that `make packages` built with
+lintian and rpmlint, and their shell scripts with shellcheck. It skips,
+in a line, any of the three that is not installed, and fails on any
+finding that is not overridden; each override says why it is intended,
+in `packaging/deb/tcslog-tools/lintian-overrides` and
+`packaging/rpm/rpmlint.toml`.
+
 Login shells find `/opt/tcs/bin` through `/etc/profile.d/tcslog-tools.sh`, but
 sudo, cron and other minimal environments do not read it, and do not
 find the programs. To make them available everywhere, link them into
