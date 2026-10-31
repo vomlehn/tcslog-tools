@@ -2,10 +2,12 @@
 # installed under build/stage/tcslog-tools. Nothing is compiled here:
 # %install copies that tree, so the RPM and the .deb hold the same
 # files, built once. The Makefile passes tcs_version, from Cargo.toml;
+# tcs_release, the Debian revision, so that the two are named alike;
 # tcs_stage; and tcs_date, the date of the commit built, for the
 # %changelog.
 
 %{!?tcs_version: %{error: tcs_version is not defined: build with make rpm}}
+%{!?tcs_release: %{error: tcs_release is not defined: build with make rpm}}
 %{!?tcs_stage: %{error: tcs_stage is not defined: build with make rpm}}
 %{!?tcs_date: %{error: tcs_date is not defined: build with make rpm}}
 
@@ -20,7 +22,7 @@
 
 Name:		tcslog-tools
 Version:	%{tcs_version}
-Release:	1%{?dist}
+Release:	%{tcs_release}%{?dist}
 Summary:	Tools for inspecting tcslog segment files
 Group:		Applications/System
 License:	MIT OR Apache-2.0

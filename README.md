@@ -52,23 +52,51 @@ As a package, built from a checkout (see *Building from a checkout*
 below for the layout it needs):
 
 ```sh
+make install              # build the packages, install this system's
+make install SIMULATE=1   # show what install would do; change nothing
+make uninstall            # remove the package
+make uninstall SIMULATE=1 # show what uninstall would do
+```
+
+`make install` builds both packages, below, as you, and then installs
+the one this system takes with its usual installer: the .deb with
+`apt-get` on Debian and Ubuntu, the RPM with `dnf` (or `yum`) on Fedora
+and Red Hat's, or with `zypper` on SUSE's, each of which installs what
+the package depends on too. Only that step runs as root, under `sudo`,
+which asks for your password then; `SUDO=<command>` names another, and
+none is used when make runs as root. `make uninstall` removes the
+package with the same installer. `SIMULATE=1` has the installer show
+what it would do -- `apt-get -s`, `dnf --assumeno`, `zypper --dry-run`
+-- without sudo, changing nothing.
+
+The system is known by the `ID` and `ID_LIKE` of `/etc/os-release`, not
+by which tools it has. On one it does not know, `make install` says so
+and stops; there, or to install the other kind, `PACKAGE_FORMAT=deb` or
+`PACKAGE_FORMAT=rpm` chooses the kind, and `INSTALLER=<command>` the
+installer (`apt-get`, `apt`, `dpkg`, `dnf`, `yum`, `zypper` or `rpm`).
+If the kind it needs was not built, because `dpkg-deb` or `rpmbuild` is
+missing, it says which to install.
+
+The packages themselves:
+
+```sh
 make deb        # build/packages/tcslog-tools_<version>-1_<arch>.deb
 make rpm        # build/packages/tcslog-tools-<version>-1.<arch>.rpm
 make packages   # both
 make packages STRIP=0   # both, unstripped
-sudo apt install ./build/packages/tcslog-tools_*.deb
 ```
 
 Both are made from one install into `build/stage/tcslog-tools` (`make
 stage`), so they hold the same files. That install strips both binaries
 with `strip --strip-unneeded`, about a quarter off each; `STRIP=0` keeps
 them as cargo built them, for a debugger. The `-1` is the package's
-release, `DEB_REVISION` for the .deb, for a package rebuilt from the same
-source. Building them needs `rst2html` (`python3-docutils`)
-and `dpkg-shlibdeps` (`dpkg-dev`). `make rpm` needs `rpmbuild` (`sudo apt
+release, `DEB_REVISION` for both, for a package rebuilt from the same
+source. Building them needs `rst2html` (`python3-docutils`) and
+`dpkg-shlibdeps` (`dpkg-dev`). `make rpm` needs `rpmbuild` (`sudo apt
 install rpm` on Debian) and says so, without failing, where it is
-missing. A package also installs `/etc/profile.d/tcslog-tools.sh`, which
-adds `/opt/tcs/bin` to `PATH` unless it is there already.
+missing, as `make deb` does without `dpkg-deb`. A package also installs
+`/etc/profile.d/tcslog-tools.sh`, which adds `/opt/tcs/bin` to `PATH`
+unless it is there already.
 
 The .deb also carries what Debian expects of every package, outside
 `/opt/tcs` as the hook is: `/usr/share/doc/tcslog-tools/copyright`, in
@@ -100,18 +128,21 @@ so, and is never run for you: removing the package removes its links,
 but installing it makes none. After `make install`, `sudo make links` and
 `sudo make unlinks` do the same, with `LINKDIR` naming the directory.
 
-Or straight from a checkout:
+Or copied straight from a checkout, without a package, for development,
+which is what `make install` once did:
 
 ```sh
-sudo make install               # under /opt/tcs, nothing in /etc
-sudo make install HOOKS=1       # with /etc/profile.d/tcslog-tools.sh
-make install PREFIX=$HOME       # into $HOME/bin
+sudo make install-files               # under /opt/tcs, nothing in /etc
+sudo make install-files HOOKS=1       # with /etc/profile.d/tcslog-tools.sh
+make install-files PREFIX=$HOME       # into $HOME/bin
+make install-files DESTDIR=/tmp/stage # into a staging directory
 ```
 
-`DESTDIR` stages the install, and `make uninstall` removes it again,
-honouring the same variables. `make install` strips as the packages do,
-and `STRIP=0` keeps it from doing so. `HOOKS=1` needs the default
-`PREFIX`, since the file it installs names `/opt/tcs`.
+`DESTDIR` stages the copy, and `make uninstall-files` removes it again,
+honouring the same variables; `make install` takes neither, and stops if
+given one. `make install-files` strips as the packages do, and `STRIP=0`
+keeps it from doing so. `HOOKS=1` needs the default `PREFIX`, since the
+file it installs names `/opt/tcs`.
 
 Or with cargo, from the registry or from a checkout:
 
@@ -124,7 +155,7 @@ cargo install --locked --path . --root /opt/tcs
 which support Rust 1.75. Without it, Cargo before 1.84 picks the newest
 versions, some of which need a newer Rust. Cargo also leaves its own
 record of what it installed, `.crates.toml` and `.crates2.json`, in the
-root it is given, which is why `make install` does not use it.
+root it is given, which is why `make install-files` does not use it.
 
 ## tcslog-dump
 

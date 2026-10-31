@@ -186,14 +186,17 @@ fn neither_document_lists_an_option_no_tool_offers() {
     // The manual shows how to run the library's sample, and both
     // documents how to install with the tested lock file, from a
     // checkout into /opt/tcs among them, which are cargo command lines
-    // and so name cargo options; the README how install strips the
-    // binaries, which names strip's; and both how to link the programs
-    // into /usr/local/bin, which names tcslog-tools-links's. Listed one
-    // by one rather than guessed at: another program's option appearing
-    // in a new command line should fail this test and be added
-    // deliberately.
+    // and so name cargo options; the README how install-files strips the
+    // binaries, which names strip's; both how to link the programs
+    // into /usr/local/bin, which names tcslog-tools-links's; and both
+    // what `make install SIMULATE=1` runs, which names dnf's and
+    // zypper's no-change modes. Listed one by one rather than guessed
+    // at: another program's option appearing in a new command line should
+    // fail this test and be added deliberately.
     let cargos: BTreeSet<String> = [
+        "--assumeno",
         "--dir",
+        "--dry-run",
         "--example",
         "--locked",
         "--path",

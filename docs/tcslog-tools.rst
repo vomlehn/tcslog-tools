@@ -94,35 +94,73 @@ three side by side::
     git clone https://github.com/vomlehn/tcslog.git
     git clone https://github.com/vomlehn/tcs-helpers.git
     git clone https://github.com/vomlehn/tcslog-tools.git
-    sudo make -C tcslog-tools install
+    make -C tcslog-tools install
 
 tcs-helpers is used where it is checked out, never installed.
 ``TCS_HELPERS=<path>`` names a checkout elsewhere, and ``make
 tcs-helpers`` checks that it is there and new enough, which installing
 and packaging do first.
 
-That installs both tools in ``/opt/tcs/bin``, the tree the TCS packages
+``make install`` builds both packages, described below, as you, and
+then installs the one this system takes with its own installer: the
+.deb with ``apt-get`` on Debian and Ubuntu, the RPM with ``dnf``, or
+``yum`` where there is no dnf, on Fedora and Red Hat's, and with
+``zypper`` on SUSE's, each of which installs what the package depends
+on too. Only the installer runs as root, under ``sudo``, which asks for
+your password then; ``SUDO=<command>`` names another, and nothing is
+used when make runs as root. ``make uninstall`` removes the package with
+the same installer::
+
+    make install                # build the packages, install this system's
+    make install SIMULATE=1     # show what install would do; change nothing
+    make uninstall              # remove the package
+    make uninstall SIMULATE=1   # show what uninstall would do
+
+``SIMULATE=1`` runs the installer's own mode for showing what it would
+do -- ``apt-get -s``, ``dnf --assumeno``, ``zypper --dry-run`` -- without
+sudo, so that nothing is installed or removed. Which system this is
+comes from the ``ID`` and ``ID_LIKE`` of ``/etc/os-release``, not from
+which tools are present, since a Debian system may have ``rpm`` too. On
+a system it does not know, ``make install`` stops and says so; there,
+or to install the other kind, ``PACKAGE_FORMAT=deb`` or
+``PACKAGE_FORMAT=rpm`` chooses the kind and ``INSTALLER=<command>`` the
+installer, one of ``apt-get``, ``apt``, ``dpkg``, ``dnf``, ``yum``,
+``zypper`` and ``rpm``. If the kind the system takes was not built,
+because ``dpkg-deb`` or ``rpmbuild`` is missing, it stops, saying which
+to install.
+
+That puts both tools in ``/opt/tcs/bin``, the tree the TCS packages
 share under FHS 3.0's ``/opt/<package>``, and this manual, the README,
 the licences and the changelog in ``/opt/tcs/share/doc/tcslog-tools``.
 The library is linked in, so neither tool needs ``tcslog`` installed to
-run. ``PREFIX`` chooses somewhere else, ``DESTDIR`` stages the install,
-and ``make uninstall`` removes it again, honouring the same variables::
+run.
 
-    make install PREFIX=$HOME           # into $HOME/bin
-    make install DESTDIR=/tmp/stage
+``make install-files`` copies the same files into place without a
+package, which is what ``make install`` once did, for development and
+for building the packages. ``PREFIX`` chooses
+somewhere else, ``DESTDIR`` stages the install, and ``make
+uninstall-files`` removes it again, honouring the same variables.
+``make install`` takes neither, and stops if given one::
 
-``HOOKS=1`` also installs ``/etc/profile.d/tcslog-tools.sh``, which adds
-``/opt/tcs/bin`` to a login shell's ``PATH`` unless it is there already.
-It is left out unless asked for, so that an install touches nothing in
-``/etc`` its installer did not mean it to, and it needs the default
-``PREFIX``, since it names ``/opt/tcs``. Cargo installs from a checkout
-as well, with ``cargo install --locked --path . --root /opt/tcs``, but
-leaves its own record of what it installed, ``.crates.toml`` and
-``.crates2.json``, in that root.
+    sudo make install-files             # under /opt/tcs, nothing in /etc
+    make install-files PREFIX=$HOME     # into $HOME/bin
+    make install-files DESTDIR=/tmp/stage
+    make uninstall-files PREFIX=$HOME
 
-Under ``STRIP=1``, the default, install strips both binaries with
-``strip --strip-unneeded``, which takes about a quarter off each;
-``STRIP=0`` keeps them as cargo built them, for a debugger.
+``HOOKS=1`` also has ``install-files`` install
+``/etc/profile.d/tcslog-tools.sh``, which adds ``/opt/tcs/bin`` to a
+login shell's ``PATH`` unless it is there already, and which the
+packages always have. It is left out unless asked for, so that a copy
+touches nothing in ``/etc`` its installer did not mean it to, and it
+needs the default ``PREFIX``, since it names ``/opt/tcs``. Cargo
+installs from a checkout as well, with ``cargo install --locked --path .
+--root /opt/tcs``, but leaves its own record of what it installed,
+``.crates.toml`` and ``.crates2.json``, in that root.
+
+Under ``STRIP=1``, the default, ``install-files``, and so the packages,
+strip both binaries with ``strip --strip-unneeded``, which takes about a
+quarter off each; ``STRIP=0`` keeps them as cargo built them, for a
+debugger.
 
 Login shells find ``/opt/tcs/bin`` through
 ``/etc/profile.d/tcslog-tools.sh``, but sudo, cron and other minimal
@@ -143,20 +181,22 @@ choice being the administrator's. After ``make install``, ``sudo make
 links`` and ``sudo make unlinks`` do the same, with ``LINKDIR`` naming
 the directory.
 
-Or as a package. ``make deb`` and ``make rpm`` build one in
+The packages. ``make deb`` and ``make rpm`` build one in
 ``build/packages``, ``tcslog-tools_<version>-1_<arch>.deb`` and
 ``tcslog-tools-<version>-1.<arch>.rpm``, and ``make packages`` builds
 both, from one install into ``build/stage/tcslog-tools`` (``make
 stage``) with the hook and stripped as above, so the two hold the same
 files; the RPM is kept from stripping on its own. The ``1`` is the
 package's release, for a package rebuilt from the same source, which
-``DEB_REVISION`` sets for the .deb. Building them needs ``rst2html``
-from docutils and ``dpkg-shlibdeps`` from dpkg-dev; ``make rpm`` needs
+``DEB_REVISION`` sets for both. Building them needs ``rst2html`` from
+docutils and ``dpkg-shlibdeps`` from dpkg-dev; ``make rpm`` needs
 ``rpmbuild``, which Debian has as ``sudo apt install rpm``, and where it
-is missing says so and builds nothing, without failing::
+is missing says so and builds nothing, without failing, as ``make deb``
+does without ``dpkg-deb``, so that ``make packages`` builds what it
+can::
 
     make -C tcslog-tools deb
-    sudo apt install ./tcslog-tools/build/packages/tcslog-tools_*.deb
+    make -C tcslog-tools packages
 
 The .deb also carries what Debian expects of every package, outside
 ``/opt/tcs`` as the hook is: ``/usr/share/doc/tcslog-tools/copyright``,

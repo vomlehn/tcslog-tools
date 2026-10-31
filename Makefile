@@ -9,8 +9,8 @@ SHELL := /bin/bash
 RM      := rm -f
 RMDIR   := rm -rf
 
-# The binaries this crate produces, which is also what install and
-# uninstall move in and out of $(PREFIX)/bin, and what tcslog-tools-links
+# The binaries this crate produces, which is also what install-files and
+# uninstall-files move in and out of $(PREFIX)/bin, and what tcslog-tools-links
 # links into /usr/local/bin, written into it as it is installed, so that
 # it never touches another TCS package's programs in the same bin.
 BINS := tcslog-dump tcslog-dumphdr
@@ -25,7 +25,7 @@ help:				## Show this help
 	@echo "Usage:"
 	@grep -hE '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) \
 		| sed 's/:.*## /|/' \
-		| awk -F'|' '{printf "  make %-14s - %s\n", $$1, $$2}'
+		| awk -F'|' '{printf "  make %-15s - %s\n", $$1, $$2}'
 
 .PHONY: test
 test:				## Run all tests
@@ -51,20 +51,20 @@ distclean: clean		## Remove build artifacts and generated files
 VERSION := $(shell sed -n '/^\[package\]/,/^\[/s/^version = "\(.*\)"/\1/p' \
 	Cargo.toml)
 
-# Where `make install` puts everything: /opt/tcs, the tree the TCS
+# Where `make install-files` puts everything: /opt/tcs, the tree the TCS
 # packages share under FHS 3.0's /opt/<package>, so that one PATH entry
 # serves them all. DESTDIR stages the install for packaging. A developer
 # installing somewhere of their own sets PREFIX, such as PREFIX=$HOME.
 PREFIX  ?= /opt/tcs
 DESTDIR ?=
-# Whether install also writes /etc/profile.d/tcslog-tools.sh, which puts
+# Whether install-files also writes /etc/profile.d/tcslog-tools.sh, which puts
 # /opt/tcs/bin on a login shell's PATH. Off unless asked for, so that an
 # install touches nothing in /etc that its installer did not mean it
 # to; `make stage` asks, the package being where it belongs. It names
 # /opt/tcs, so it is refused with any other PREFIX rather than installed
 # pointing at the wrong tree.
 HOOKS   ?= 0
-# Whether install strips the binaries it installs; see install below.
+# Whether install-files strips the binaries it installs; see it below.
 STRIP   ?= 1
 ifeq ($(HOOKS),1)
 ifneq ($(PREFIX),/opt/tcs)
@@ -77,7 +77,7 @@ endif
 # TCS_HELPERS names another, used where it is rather than installed.
 # Installing and packaging check it first: see the tcs-helpers target.
 TCS_HELPERS ?= $(abspath $(CURDIR)/../tcs-helpers)
-TCS_HELPERS_REQUIRED := 0.3.0
+TCS_HELPERS_REQUIRED := 0.4.0
 
 BINDIR  := $(DESTDIR)$(PREFIX)/bin
 SBINDIR := $(DESTDIR)$(PREFIX)/sbin
@@ -98,19 +98,22 @@ tcs-helpers:			## Check the tcs-helpers checkout
 	fi
 	@"$(TCS_HELPERS)/bin/tcs-helpers" --require $(TCS_HELPERS_REQUIRED)
 
-# Install the binaries, built for release, and the documents a reader
-# of the installed tree needs. Built with cargo build and copied, rather
-# than with cargo install, which would also leave its own records of
-# what it installed, .crates.toml and .crates2.json, in $(PREFIX). The
-# library is linked in statically, as Rust links its dependencies, so
-# nothing of tcslog's needs to be installed for these to run.
+# Copy the binaries, built for release, and the documents a reader of
+# the installed tree needs, into place under $(DESTDIR)$(PREFIX): what
+# `make install` once did, kept for development and for `make stage`,
+# which cuts the packages from it; `make install` installs the packages.
+# Built with cargo build and copied, rather than with cargo install,
+# which would also leave its own records of what it installed,
+# .crates.toml and .crates2.json, in $(PREFIX). The library is linked in
+# statically, as Rust links its dependencies, so nothing of tcslog's
+# needs to be installed for these to run.
 #
 # Under STRIP=1, the default, the binaries are stripped of every symbol
 # nothing links against as they are installed, which takes about a
 # quarter off each. STRIP=0 keeps them as cargo built them, for a
 # debugger.
-.PHONY: install
-install: docs tcs-helpers	## Build, strip (STRIP=0: don't), install
+.PHONY: install-files
+install-files: docs tcs-helpers	## Build, strip (STRIP=0: don't), copy to PREFIX
 	@echo "Installing tcslog-tools $(VERSION) to $(DESTDIR)$(PREFIX)..."
 	cargo build --release --locked
 	install -D -m 755 -t $(BINDIR) $(addprefix target/release/,$(BINS))
@@ -129,15 +132,15 @@ install: docs tcs-helpers	## Build, strip (STRIP=0: don't), install
 	fi
 	@echo "[OK] Installed under $(DESTDIR)$(PREFIX)"
 
-# Removes what install put there, honouring the same variables, HOOKS
-# included.
+# Removes what install-files put there, honouring the same variables,
+# HOOKS included.
 #
 # The links `make links` made in $(LINKDIR) go first, while the script
 # that knows which they are is still there, so that nothing is left
 # pointing at programs that are gone. A failure there, such as a
 # LINKDIR that does not exist, stops nothing.
-.PHONY: uninstall
-uninstall:			## Remove what install put under PREFIX
+.PHONY: uninstall-files
+uninstall-files:		## Remove what install-files put under PREFIX
 	@echo "Removing tcslog-tools from $(DESTDIR)$(PREFIX)..."
 	-$(SBINDIR)/tcslog-tools-links --remove --dir $(LINKDIR)
 	$(RM) $(addprefix $(BINDIR)/,$(BINS)) $(SBINDIR)/tcslog-tools-links
@@ -148,25 +151,30 @@ uninstall:			## Remove what install put under PREFIX
 	@echo "[OK] Uninstalled from $(DESTDIR)$(PREFIX)"
 
 # Where `make links` links the installed programs, and from where
-# uninstall removes them: see tcs-helpers' packaging.mk.
+# uninstall-files removes them: see tcs-helpers' packaging.mk.
 LINKDIR ?= /usr/local/bin
 
 .PHONY: docs
 docs:				## Build the HTML manual from docs/*.rst
 	$(MAKE) -C docs
 
-# The packaging targets -- stage, deb, rpm, packages, lint-packages,
-# links and unlinks -- are tcs-helpers' packaging.mk's, shared by the TCS
-# projects; see it for what each does. This repository has the one
-# package, built from packaging/deb/tcslog-tools and
+# The packaging targets -- install, uninstall, stage, deb, rpm, packages,
+# lint-packages, links and unlinks -- are tcs-helpers' packaging.mk's,
+# shared by the TCS projects; see it for what each does. This repository
+# has the one package, built from packaging/deb/tcslog-tools and
 # packaging/rpm/tcslog-tools.spec. Without a tcs-helpers checkout new
-# enough to have packaging.mk, the targets stop as the tcs-helpers target
-# says.
+# enough to have install-packages.sh, which came with the install target
+# in 0.4.0, there is nothing to include that has every target here, and
+# the targets stop as the tcs-helpers target says.
 PACKAGES     := tcslog-tools
 LINT_SCRIPTS := bin/make-releases
-ifneq ($(wildcard $(TCS_HELPERS)/packaging/packaging.mk),)
+ifneq ($(wildcard $(TCS_HELPERS)/packaging/install-packages.sh),)
 include $(TCS_HELPERS)/packaging/packaging.mk
 else
+.PHONY: install
+install: tcs-helpers
+.PHONY: uninstall
+uninstall: tcs-helpers
 .PHONY: stage
 stage: tcs-helpers
 .PHONY: deb
