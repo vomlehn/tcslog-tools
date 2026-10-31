@@ -77,7 +77,7 @@ endif
 # TCS_HELPERS names another, used where it is rather than installed.
 # Installing and packaging check it first: see the tcs-helpers target.
 TCS_HELPERS ?= $(abspath $(CURDIR)/../tcs-helpers)
-TCS_HELPERS_REQUIRED := 0.2.0
+TCS_HELPERS_REQUIRED := 0.3.0
 
 BINDIR  := $(DESTDIR)$(PREFIX)/bin
 SBINDIR := $(DESTDIR)$(PREFIX)/sbin
@@ -86,17 +86,6 @@ PROFILE := $(DESTDIR)/etc/profile.d/tcslog-tools.sh
 DOCS    := README.md LICENSE-APACHE LICENSE-MIT CHANGELOG.md \
 	docs/tcslog-tools.html
 
-# Install the binaries, built for release, and the documents a reader
-# of the installed tree needs. Built with cargo build and copied, rather
-# than with cargo install, which would also leave its own records of
-# what it installed, .crates.toml and .crates2.json, in $(PREFIX). The
-# library is linked in statically, as Rust links its dependencies, so
-# nothing of tcslog's needs to be installed for these to run.
-#
-# Under STRIP=1, the default, the binaries are stripped of every symbol
-# nothing links against as they are installed, which takes about a
-# quarter off each. STRIP=0 keeps them as cargo built them, for a
-# debugger.
 # Stop, saying what to do, unless the tcs-helpers checkout is there and
 # at least TCS_HELPERS_REQUIRED.
 .PHONY: tcs-helpers
@@ -109,6 +98,17 @@ tcs-helpers:			## Check the tcs-helpers checkout
 	fi
 	@"$(TCS_HELPERS)/bin/tcs-helpers" --require $(TCS_HELPERS_REQUIRED)
 
+# Install the binaries, built for release, and the documents a reader
+# of the installed tree needs. Built with cargo build and copied, rather
+# than with cargo install, which would also leave its own records of
+# what it installed, .crates.toml and .crates2.json, in $(PREFIX). The
+# library is linked in statically, as Rust links its dependencies, so
+# nothing of tcslog's needs to be installed for these to run.
+#
+# Under STRIP=1, the default, the binaries are stripped of every symbol
+# nothing links against as they are installed, which takes about a
+# quarter off each. STRIP=0 keeps them as cargo built them, for a
+# debugger.
 .PHONY: install
 install: docs tcs-helpers	## Build, strip (STRIP=0: don't), install
 	@echo "Installing tcslog-tools $(VERSION) to $(DESTDIR)$(PREFIX)..."
@@ -147,148 +147,29 @@ uninstall:			## Remove what install put under PREFIX
 	fi
 	@echo "[OK] Uninstalled from $(DESTDIR)$(PREFIX)"
 
-# Link the installed programs into $(LINKDIR), or take those links away
-# again, with the tcslog-tools-links install put in sbin: what an
-# administrator does to make them available beyond login shells, to sudo
-# and cron among others. Needs root for /usr/local/bin, being root's;
-# LINKDIR names another directory, such as /opt/bin.
+# Where `make links` links the installed programs, and from where
+# uninstall removes them: see tcs-helpers' packaging.mk.
 LINKDIR ?= /usr/local/bin
-.PHONY: links
-links:				## Link the installed programs into LINKDIR
-	$(DESTDIR)$(PREFIX)/sbin/tcslog-tools-links --dir $(LINKDIR)
-
-.PHONY: unlinks
-unlinks:			## Remove the links `make links` made in LINKDIR
-	$(DESTDIR)$(PREFIX)/sbin/tcslog-tools-links --remove --dir $(LINKDIR)
 
 .PHONY: docs
 docs:				## Build the HTML manual from docs/*.rst
 	$(MAKE) -C docs
 
-# Where the packages are made from and where they land, both under
-# build/, which .gitignore keeps out of the repository. The stage is one
-# directory per package, as tcspecial's is, though this repository has
-# only the one package.
-STAGE    := $(CURDIR)/build/stage
-PKGSTAGE := $(STAGE)/tcslog-tools
-PKGOUT   := $(CURDIR)/build/packages
-
-# Install into $(PKGSTAGE) as the package installs onto a machine: under
-# /opt/tcs, with the hook, and stripped unless STRIP=0 says otherwise,
-# which the sub-make is passed as every variable on the command line is.
-# The stage is emptied first, so that nothing a previous install left
-# behind gets into a package. Files are then made writable by their
-# owner alone, whatever the umask of whoever ran this, which is what
-# both package formats expect.
-.PHONY: stage
-stage:				## Install into build/stage/tcslog-tools
-	$(RMDIR) $(STAGE)
-	$(MAKE) install DESTDIR=$(PKGSTAGE) PREFIX=/opt/tcs HOOKS=1
-	chmod -R u+rwX,go=rX $(PKGSTAGE)
-	@echo "[OK] Staged under $(PKGSTAGE)"
-
-# The release's time, which dates the changelog entry each package
-# carries: that of the commit being built, so that building the same
-# commit again makes the same entry, or now outside a git clone. The
-# name is the one reproducible builds give it, so that a builder's own
-# SOURCE_DATE_EPOCH is taken. Worked out once, so that the .deb and the
-# .rpm are dated alike.
-ifndef SOURCE_DATE_EPOCH
-SOURCE_DATE_EPOCH := $(shell git log -1 --format=%ct 2>/dev/null || date +%s)
+# The packaging targets -- stage, deb, rpm, packages, lint-packages,
+# links and unlinks -- are tcs-helpers' packaging.mk's, shared by the TCS
+# projects; see it for what each does. This repository has the one
+# package, built from packaging/deb/tcslog-tools and
+# packaging/rpm/tcslog-tools.spec. Without a tcs-helpers checkout new
+# enough to have packaging.mk, the targets stop as the tcs-helpers target
+# says.
+PACKAGES     := tcslog-tools
+LINT_SCRIPTS := bin/make-releases
+ifneq ($(wildcard $(TCS_HELPERS)/packaging/packaging.mk),)
+include $(TCS_HELPERS)/packaging/packaging.mk
+else
+.PHONY: stage deb rpm packages lint-packages links unlinks
+stage deb rpm packages lint-packages links unlinks: tcs-helpers
 endif
-
-# Build the .deb from the stage, with the control files in
-# packaging/deb/tcslog-tools. dpkg-shlibdeps works out what the binaries
-# need from the libraries they link, but wants a debian/control to read,
-# so it is given a minimal one in a directory of its own.
-# tcs-helpers' debian-files.sh then adds what Debian expects outside
-# /opt/tcs and the RPM does not have: the copyright file, the Debian
-# changelog and the lintian overrides.
-#
-# DEB_REVISION is the Debian revision, for a package rebuilt from the
-# same source, as in tcspecial.
-DEB_DIR := packaging/deb/tcslog-tools
-DEB_REVISION ?= 1
-DEB_VERSION  := $(VERSION)-$(DEB_REVISION)
-.PHONY: deb
-deb: stage			## Build the .deb in build/packages
-	root=$(CURDIR)/build/deb/tcslog-tools; \
-	arch=$$(dpkg --print-architecture); \
-	$(RMDIR) $$root; \
-	mkdir -p $(CURDIR)/build/deb $(PKGOUT); \
-	cp -a $(PKGSTAGE) $$root; \
-	install -d -m 755 $$root/DEBIAN; \
-	shl=$(CURDIR)/build/deb/shlibdeps; \
-	$(RMDIR) $$shl; \
-	mkdir -p $$shl/debian; \
-	printf 'Source: tcslog-tools\n\nPackage: tcslog-tools\n%s\n' \
-		'Architecture: any' > $$shl/debian/control; \
-	depends=$$(cd $$shl && dpkg-shlibdeps -O \
-		$(addprefix -e$$root/opt/tcs/bin/,$(BINS)) 2>/dev/null \
-		| sed -n 's/^shlibs:Depends=//p'); \
-	size=$$(du -sk $$root | cut -f1); \
-	sed -e 's|@VERSION@|$(DEB_VERSION)|' -e "s|@ARCH@|$$arch|" \
-		-e "s|@SIZE@|$$size|" -e "s|@DEPENDS@|$$depends|" \
-		$(DEB_DIR)/control > $$root/DEBIAN/control; \
-	install -m 644 $(DEB_DIR)/conffiles $$root/DEBIAN/; \
-	install -m 755 $(DEB_DIR)/prerm $$root/DEBIAN/; \
-	$(TCS_HELPERS)/packaging/debian-files.sh $(CURDIR)/packaging/deb \
-		tcslog-tools tcslog-tools $$root \
-		$(DEB_VERSION) $(SOURCE_DATE_EPOCH); \
-	dpkg-deb --root-owner-group --build $$root \
-		$(PKGOUT)/tcslog-tools_$(DEB_VERSION)_$$arch.deb
-
-# Build the .rpm from the same stage, with
-# packaging/rpm/tcslog-tools.spec, whose %install copies the stage
-# rather than building anything. A machine without rpmbuild says so and
-# carries on, so that `make packages` still makes the .deb; that is
-# checked before staging, so as not to build for nothing. rpmbuild is
-# pointed at a database of its own under build/, because a Debian host
-# has no RPM database in /var/lib/rpm to read, and rpmbuild complains at
-# length when it finds none.
-RPM_TOP := $(CURDIR)/build/rpm
-.PHONY: rpm
-rpm:				## Build the .rpm in build/packages
-	@if ! command -v rpmbuild > /dev/null; then \
-		echo "rpmbuild is not installed, so no RPM was built;" \
-			"install it with 'sudo apt install rpm'"; \
-		exit 0; \
-	fi; \
-	$(MAKE) stage; \
-	$(RMDIR) $(RPM_TOP); \
-	mkdir -p $(PKGOUT) $(RPM_TOP)/db; \
-	rpmbuild -bb --quiet \
-		--define "_topdir $(RPM_TOP)" \
-		--define "_dbpath $(RPM_TOP)/db" \
-		--define "tcs_version $(VERSION)" \
-		--define "tcs_date $$(date -u -d @$(SOURCE_DATE_EPOCH) \
-			'+%a %b %d %Y')" \
-		--define "tcs_stage $(PKGSTAGE)" \
-		packaging/rpm/tcslog-tools.spec; \
-	cp $(RPM_TOP)/RPMS/*/tcslog-tools-$(VERSION)-*.rpm $(PKGOUT)/; \
-	echo "[OK] Built the RPM in $(PKGOUT)"
-
-.PHONY: packages
-packages: deb rpm		## Build both; STRIP=0 leaves them unstripped
-
-# Check the packages `make packages` built, and the shell scripts they
-# run or install, with lintian, rpmlint and shellcheck, any of which is
-# skipped in a line if it is not installed: see
-# tcs-helpers' lint-packages.sh, whose own scripts tcs-helpers checks.
-# rpmlint is given packaging/rpm/rpmlint.toml,
-# which says why each finding it accepts is intended; the .deb carries
-# its own lintian overrides. The links script and the profile.d hook are
-# checked as the stage has them, with their placeholders filled in.
-.PHONY: lint-packages
-lint-packages: tcs-helpers	## Lint the packages and their shell scripts
-	$(TCS_HELPERS)/packaging/lint-packages.sh packaging/rpm/rpmlint.toml \
-		$(wildcard $(PKGOUT)/tcslog-tools_$(DEB_VERSION)_*.deb \
-			$(PKGOUT)/tcslog-tools-$(VERSION)-*.rpm) \
-		-- $(wildcard $(PKGSTAGE)/opt/tcs/sbin/*-links \
-			$(PKGSTAGE)/etc/profile.d/*.sh) \
-		$(wildcard $(addprefix $(DEB_DIR)/,preinst postinst prerm \
-			postrm)) \
-		bin/make-releases
 
 .PHONY: check
 check:				## Run cargo check, clippy, and fmt --check

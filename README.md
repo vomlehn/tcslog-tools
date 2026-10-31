@@ -171,8 +171,8 @@ failure exits 1 and a usage error exits 2.
 
 The `tcslog` dependency is a path to a sibling checkout, and installing and
 packaging use [tcs-helpers](https://github.com/vomlehn/tcs-helpers), the
-packaging scripts the TCS projects share, from a sibling checkout too, so
-clone all three side by side:
+packaging scripts and make rules the TCS projects share, from a sibling
+checkout too, so clone all three side by side:
 
 ```sh
 git clone https://github.com/vomlehn/tcslog.git
