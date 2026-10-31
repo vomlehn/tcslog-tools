@@ -189,7 +189,7 @@ fn neither_document_lists_an_option_no_tool_offers() {
     // and so name cargo options; the README how install-files strips the
     // binaries, which names strip's; both how to link the programs
     // into /usr/local/bin, which names tcslog-tools-links's; and both
-    // what `make install SIMULATE=1` runs, which names dnf's and
+    // what `make install DRY_RUN=1` runs, which names dnf's and
     // zypper's no-change modes. Listed one by one rather than guessed
     // at: another program's option appearing in a new command line should
     // fail this test and be added deliberately.

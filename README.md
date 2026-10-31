@@ -53,9 +53,9 @@ below for the layout it needs):
 
 ```sh
 make install              # build the packages, install this system's
-make install SIMULATE=1   # show what install would do; change nothing
+make install DRY_RUN=1    # show what install would do; change nothing
 make uninstall            # remove the package
-make uninstall SIMULATE=1 # show what uninstall would do
+make uninstall DRY_RUN=1  # show what uninstall would do
 ```
 
 `make install` builds both packages, below, as you, and then installs
@@ -65,7 +65,7 @@ and Red Hat's, or with `zypper` on SUSE's, each of which installs what
 the package depends on too. Only that step runs as root, under `sudo`,
 which asks for your password then; `SUDO=<command>` names another, and
 none is used when make runs as root. `make uninstall` removes the
-package with the same installer. `SIMULATE=1` has the installer show
+package with the same installer. `DRY_RUN=1` has the installer show
 what it would do -- `apt-get -s`, `dnf --assumeno`, `zypper --dry-run`
 -- without sudo, changing nothing.
 
