@@ -36,7 +36,7 @@ clap = { version = "4", features = ["derive"] }
 # side by side; `cargo publish` substitutes the registry version for it.
 [dependencies.tcslog]
 path = "../tcslog/tcslog"
-version = "0.5"
+version = "0.6"
 default-features = false
 
 [lints.rust]

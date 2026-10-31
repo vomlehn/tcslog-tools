@@ -16,8 +16,8 @@ library version it requires.
 
 ## [Unreleased]
 
-Requires the next `tcslog` release, whose stored format 1.1 widens a
-`VariableTsRc` record count to 48 bits; it still reads format 1.0.
+Requires `tcslog` 0.6, whose stored format 1.1 widens a `VariableTsRc`
+record count to 48 bits; it still reads format 1.0.
 
 ### Added
 
