@@ -30,6 +30,8 @@ record count to 48 bits; it still reads format 1.0.
   machine-readable format, `changelog.Debian.gz` and lintian overrides,
   and the RPM a `%changelog` and a `Group`, all made from the version as
   the package is built.
+- The .deb carries `DEBIAN/md5sums`, the MD5 of every file it installs,
+  which `dpkg --verify` and debsums check an installed package against.
 
 ### Changed
 
