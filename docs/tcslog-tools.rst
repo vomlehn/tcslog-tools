@@ -86,11 +86,20 @@ with, which support Rust 1.75. Without it, Cargo before 1.84 picks the
 newest versions of every dependency, some of which need a newer Rust.
 
 Or from a checkout. The ``tcslog`` dependency is a path to a sibling
-checkout, so clone both repositories side by side::
+checkout, and installing and packaging use tcs-helpers
+(https://github.com/vomlehn/tcs-helpers), the packaging scripts the TCS
+projects share, from a sibling checkout too, so clone all three side by
+side::
 
     git clone https://github.com/vomlehn/tcslog.git
+    git clone https://github.com/vomlehn/tcs-helpers.git
     git clone https://github.com/vomlehn/tcslog-tools.git
     sudo make -C tcslog-tools install
+
+tcs-helpers is used where it is checked out, never installed.
+``TCS_HELPERS=<path>`` names a checkout elsewhere, and ``make
+tcs-helpers`` checks that it is there and new enough, which installing
+and packaging do first.
 
 That installs both tools in ``/opt/tcs/bin``, the tree the TCS packages
 share under FHS 3.0's ``/opt/<package>``, and this manual, the README,

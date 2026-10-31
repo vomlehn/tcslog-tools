@@ -169,17 +169,23 @@ failure exits 1 and a usage error exits 2.
 
 ## Building from a checkout
 
-The `tcslog` dependency is a path to a sibling checkout, so clone both
-repositories side by side:
+The `tcslog` dependency is a path to a sibling checkout, and installing and
+packaging use [tcs-helpers](https://github.com/vomlehn/tcs-helpers), the
+packaging scripts the TCS projects share, from a sibling checkout too, so
+clone all three side by side:
 
 ```sh
 git clone https://github.com/vomlehn/tcslog.git
+git clone https://github.com/vomlehn/tcs-helpers.git
 git clone https://github.com/vomlehn/tcslog-tools.git
 cd tcslog-tools && cargo build
 ```
 
-`cargo publish` substitutes the registry version for that path, so a release
-does not depend on the layout.
+`cargo publish` substitutes the registry version for the `tcslog` path, so
+a release does not depend on the layout. tcs-helpers is used where it is
+checked out, never installed; `TCS_HELPERS=<path>` names a checkout
+elsewhere, and `make tcs-helpers` checks that it is there and new enough,
+which installing and packaging do first.
 
 ## Documentation
 

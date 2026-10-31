@@ -443,12 +443,20 @@ cargo install --locked tcslog-tools
 with, which support Rust 1.75. Without it, Cargo before 1.84 picks the
 newest versions of every dependency, some of which need a newer Rust.</p>
 <p>Or from a checkout. The <tt class="docutils literal">tcslog</tt> dependency is a path to a sibling
-checkout, so clone both repositories side by side:</p>
+checkout, and installing and packaging use tcs-helpers
+(<a class="reference external" href="https://github.com/vomlehn/tcs-helpers">https://github.com/vomlehn/tcs-helpers</a>), the packaging scripts the TCS
+projects share, from a sibling checkout too, so clone all three side by
+side:</p>
 <pre class="literal-block">
 git clone https://github.com/vomlehn/tcslog.git
+git clone https://github.com/vomlehn/tcs-helpers.git
 git clone https://github.com/vomlehn/tcslog-tools.git
 sudo make -C tcslog-tools install
 </pre>
+<p>tcs-helpers is used where it is checked out, never installed.
+<tt class="docutils literal"><span class="pre">TCS_HELPERS=&lt;path&gt;</span></tt> names a checkout elsewhere, and <tt class="docutils literal">make
+<span class="pre">tcs-helpers</span></tt> checks that it is there and new enough, which installing
+and packaging do first.</p>
 <p>That installs both tools in <tt class="docutils literal">/opt/tcs/bin</tt>, the tree the TCS packages
 share under FHS 3.0's <tt class="docutils literal"><span class="pre">/opt/&lt;package&gt;</span></tt>, and this manual, the README,
 the licences and the changelog in <tt class="docutils literal"><span class="pre">/opt/tcs/share/doc/tcslog-tools</span></tt>.
