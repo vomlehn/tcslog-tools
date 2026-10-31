@@ -14,7 +14,7 @@ library version it requires.
 [kac]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## [0.3.0] - 2026-10-30
 
 Requires `tcslog` 0.6, whose stored format 1.1 widens a `VariableTsRc`
 record count to 48 bits; it still reads format 1.0.
@@ -328,6 +328,7 @@ cargo install tcslog-tools
 - Requires Rust 1.75 or later. Dual licensed under MIT OR Apache-2.0.
 
 [Unreleased]: https://github.com/vomlehn/tcslog-tools/compare/v0.2.0...HEAD
+[0.3.0]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.3.0
 [0.2.0]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.2.0
 [0.1.8]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.8
 [0.1.7]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.7
