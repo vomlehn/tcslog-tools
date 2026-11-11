@@ -77,7 +77,7 @@ endif
 # TCS_HELPERS names another, used where it is rather than installed.
 # Installing and packaging check it first: see the tcs-helpers target.
 TCS_HELPERS ?= $(abspath $(CURDIR)/../tcs-helpers)
-TCS_HELPERS_REQUIRED := 0.5.0
+TCS_HELPERS_REQUIRED := 0.6.0
 
 BINDIR  := $(DESTDIR)$(PREFIX)/bin
 SBINDIR := $(DESTDIR)$(PREFIX)/sbin
@@ -112,6 +112,10 @@ tcs-helpers:			## Check the tcs-helpers checkout
 # nothing links against as they are installed, which takes about a
 # quarter off each. STRIP=0 keeps them as cargo built them, for a
 # debugger.
+#
+# THIRD-PARTY-NOTICES, which tcs-helpers' third-party-notices.py writes,
+# lists the crates compiled into the programs, with the licence notices
+# each requires to go with every copy.
 .PHONY: install-files
 install-files: docs tcs-helpers	## Build, strip (STRIP=0: don't), copy to PREFIX
 	@echo "Installing tcslog-tools $(VERSION) to $(DESTDIR)$(PREFIX)..."
@@ -127,6 +131,7 @@ install-files: docs tcs-helpers	## Build, strip (STRIP=0: don't), copy to PREFIX
 		strip --strip-unneeded $(addprefix $(BINDIR)/,$(BINS)); \
 	fi
 	install -D -m 644 -t $(DOCDIR) $(DOCS)
+	$(THIRD_PARTY_NOTICES) . $(DOCDIR)/THIRD-PARTY-NOTICES tcslog-tools
 	if [ "$(HOOKS)" = 1 ]; then \
 		install -D -m 644 packaging/hooks/tcslog-tools.sh $(PROFILE); \
 	fi
