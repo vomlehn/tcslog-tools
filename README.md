@@ -218,6 +218,21 @@ checked out, never installed; `TCS_HELPERS=<path>` names a checkout
 elsewhere, and `make tcs-helpers` checks that it is there and new enough,
 which installing and packaging do first.
 
+## Where things are
+
+* [`src/`](src/): the code the two tools share, in `src/lib.rs`, and each
+  tool's own, in [`src/bin/`](src/bin/) (`tcslog-dump.rs`,
+  `tcslog-dumphdr.rs`).
+* [`tests/`](tests/): what `cargo test` runs besides the unit tests, such as
+  `tests/documented_options.rs`, which holds the options each tool takes to
+  the ones this page and the manual list.
+* [`docs/`](docs/): the manual, `docs/tcslog-tools.rst`, with its page, and
+  each version's release notes.
+* [`packaging/`](packaging/): what the `.deb` and `.rpm` packages are made
+  from.
+* [`bin/`](bin/): scripts for making a release, such as
+  `bin/make-releases`, which gives each tag its GitHub release.
+
 ## Documentation
 
 The manual is `docs/tcslog-tools.rst` in [the
