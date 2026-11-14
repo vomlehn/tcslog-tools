@@ -77,7 +77,7 @@ endif
 # TCS_HELPERS names another, used where it is rather than installed.
 # Installing and packaging check it first: see the tcs-helpers target.
 TCS_HELPERS ?= $(abspath $(CURDIR)/../tcs-helpers)
-TCS_HELPERS_REQUIRED := 0.6.0
+TCS_HELPERS_REQUIRED := 0.9.0
 
 BINDIR  := $(DESTDIR)$(PREFIX)/bin
 SBINDIR := $(DESTDIR)$(PREFIX)/sbin
@@ -197,11 +197,29 @@ unlinks: tcs-helpers
 endif
 
 .PHONY: check
-check:				## Run cargo check, clippy, and fmt --check
+check:				## Run cargo check, clippy, fmt --check, the names
 	@echo "Running cargo check..."
 	cargo check --all-targets
 	cargo clippy --all-targets -- -D warnings
 	cargo fmt -- --check
+	$(MAKE) --no-print-directory production-names
+
+# Fail where production code is built from code with a non-production
+# name, a name with a hyphen or an underscore after tcs or tcslog.
+# tcslog-tools is itself a tool, so it may be built from anything; what
+# this holds it to is that a crate added here with a production name -- one
+# meant to fly -- is built only from production code. The rule, and the
+# check, are tcs-helpers' production-names, which every TCS project runs.
+.PHONY: production-names
+production-names: tcs-helpers	## Check the names of production code
+	$(TCS_HELPERS)/bin/production-names
+
+# Have git run tcs-helpers' pre-commit hook in this checkout, which checks
+# the names when a commit changes a dependency, and remakes the page of each
+# document a commit changes and adds it to the commit.
+.PHONY: hooks
+hooks: tcs-helpers		## Have git run tcs-helpers' pre-commit hook
+	git config core.hooksPath "$(TCS_HELPERS)/githooks"
 
 .PHONY: format
 format:				## Format the code with cargo fmt

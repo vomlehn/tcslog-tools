@@ -27,6 +27,12 @@ jobs:
         with:
           repository: vomlehn/tcslog
           path: tcslog
+      # tcs-helpers, beside them as on a developer's machine: make check
+      # runs its production-names.
+      - uses: actions/checkout@v4
+        with:
+          repository: vomlehn/tcs-helpers
+          path: tcs-helpers
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
