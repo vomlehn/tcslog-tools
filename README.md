@@ -220,6 +220,13 @@ which installing and packaging do first.
 
 ## Where things are
 
+tcslog-tools is an analysis tool: it works on what a mission produced.
+Each directory is in a category of TCS code, as `categories.toml` lists
+them and "Code categories" in
+[tcs-helpers' README](https://github.com/vomlehn/tcs-helpers#code-categories)
+defines them: `src/` analysis tools, `tests/` verification tools, and the
+rest infrastructure.
+
 * [`src/`](src/): the code the two tools share, in `src/lib.rs`, and each
   tool's own, in [`src/bin/`](src/bin/) (`tcslog-dump.rs`,
   `tcslog-dumphdr.rs`).

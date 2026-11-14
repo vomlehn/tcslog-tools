@@ -77,7 +77,7 @@ endif
 # TCS_HELPERS names another, used where it is rather than installed.
 # Installing and packaging check it first: see the tcs-helpers target.
 TCS_HELPERS ?= $(abspath $(CURDIR)/../tcs-helpers)
-TCS_HELPERS_REQUIRED := 0.9.0
+TCS_HELPERS_REQUIRED := 0.10.0
 
 BINDIR  := $(DESTDIR)$(PREFIX)/bin
 SBINDIR := $(DESTDIR)$(PREFIX)/sbin
@@ -202,17 +202,19 @@ check:				## Run cargo check, clippy, fmt --check, the names
 	cargo check --all-targets
 	cargo clippy --all-targets -- -D warnings
 	cargo fmt -- --check
-	$(MAKE) --no-print-directory production-names
+	$(MAKE) --no-print-directory operational-names
 
-# Fail where production code is built from code with a non-production
-# name, a name with a hyphen or an underscore after tcs or tcslog.
-# tcslog-tools is itself a tool, so it may be built from anything; what
-# this holds it to is that a crate added here with a production name -- one
-# meant to fly -- is built only from production code. The rule, and the
-# check, are tcs-helpers' production-names, which every TCS project runs.
-.PHONY: production-names
-production-names: tcs-helpers	## Check the names of production code
-	$(TCS_HELPERS)/bin/production-names
+# Fail where operational code is built from code with a non-operational
+# name, a name with a hyphen or an underscore after tcs or tcslog, or where
+# categories.toml leaves a directory out of every category or disagrees
+# with a name. tcslog-tools is itself an analysis tool, so it may be built
+# from anything; what this holds it to is that a crate added here with an
+# operational name -- one meant to fly -- is built only from operational
+# code. The rules, and the check, are tcs-helpers' operational-names, which
+# every TCS project runs.
+.PHONY: operational-names
+operational-names: tcs-helpers	## Check names and code categories
+	$(TCS_HELPERS)/bin/operational-names
 
 # Have git run tcs-helpers' pre-commit hook in this checkout, which checks
 # the names when a commit changes a dependency, and remakes the page of each
