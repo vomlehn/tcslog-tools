@@ -16,10 +16,18 @@ library version it requires.
 
 ## [Unreleased]
 
-Requires `tcslog` 0.6, as 0.3.0 does.
+## [0.3.1] - 2026-11-15
+
+Requires `tcslog` 0.7, which split its code generator into a package of
+its own, tcslog-gen, and left the library, and the stored formats it
+reads, as 0.6 had them. A patch release: the tools read the same logs,
+and the library target exports nothing.
 
 ### Changed
 
+- Built against `tcslog` 0.7 rather than 0.6. The checkout beside this
+  one is 0.7.0, which the old requirement, `^0.6`, refused, so the
+  packages would not build.
 - Installing and packaging use the packaging scripts the TCS projects
   share -- the package linter, the Debian file generator and the
   `tcslog-tools-links` template -- from a checkout of
@@ -367,7 +375,8 @@ cargo install tcslog-tools
   documentation is `docs/tcslog-tools.rst`.
 - Requires Rust 1.75 or later. Dual licensed under MIT OR Apache-2.0.
 
-[Unreleased]: https://github.com/vomlehn/tcslog-tools/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/vomlehn/tcslog-tools/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.3.1
 [0.3.0]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.3.0
 [0.2.0]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.2.0
 [0.1.8]: https://github.com/vomlehn/tcslog-tools/releases/tag/v0.1.8
