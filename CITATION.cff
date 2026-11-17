@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "tcslog-tools: command-line tools for reading tcslog logs"
+abstract: >-
+  tcslog-tools is two command-line programs that read logs written with
+  tcslog, the TCS Onboard Log: tcslog-dump, which walks a whole log and
+  prints the records it recovers, saying what was lost where segments are
+  missing or damaged, and tcslog-dumphdr, which prints one segment file's
+  header. They read any tcslog log, whichever language wrote it.
+authors:
+  - name: "TCSpecial Team"
+version: 0.3.0
+date-released: 2026-10-31
+license:
+  - MIT
+  - Apache-2.0
+repository-code: "https://github.com/vomlehn/tcslog-tools"
+keywords:
+  - telemetry
+  - logging
+  - spacecraft
+  - command-line tools
