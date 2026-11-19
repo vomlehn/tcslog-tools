@@ -39,13 +39,15 @@ A Rust toolchain of version 1.75 or later. No ``TIMER_RESOLUTION`` is
 needed: that value is required only when creating segment files, and
 neither tool creates one.
 
-The ``tcslog`` library, version 0.4. Which stored segment file formats a
+The ``tcslog`` library, version 0.7. Which stored segment file formats a
 build of these tools understands follows from that version rather than
 from this crate's: a build reads a file whose major format version
-matches the library's and whose minor version is no greater.
+matches the library's and whose minor version is no greater. 0.7 reads
+format 1.1, which 0.6.0 introduced, and 1.0, which 0.5.0 did; a log
+written by a release before 0.5.0, in format 0.1, is refused.
 
-That requirement has moved twice, each time for a change to a part of
-the library these tools do not use.
+The library's breaking changes have been outside what these tools use,
+or only in their tests.
 
 ``WriteCallbacks``, the callbacks a writer is given, was a structure of
 three function pointers through 0.2.x and is a trait of three methods
@@ -66,13 +68,15 @@ recovered, and the tool prints them marked. It was the iterator that
 handed partial records back unmarked, and the iterator is what 0.4.0
 fixes.
 
-The records the tools read are the same records across both releases,
-the stored format having stayed at 0.1.0 throughout.
+``SegmentHeader`` gained ``version_minor`` in 0.6.0, which breaks code
+that builds one field by field. Only ``tcslog-dumphdr``'s tests do, and
+they give it; the tool itself only reads headers.
 
-The requirement moves only because a caret requirement on 0.3 does not
-match 0.4. A copy of these tools already built against ``tcslog`` 0.3,
-or 0.2, is equally correct and goes on working; this says which release
-they are built against from here.
+0.7.0 renamed the C library, which these tools do not use, and changed
+nothing they read. The requirement moves because a caret requirement on
+one 0.x release does not match the next: a copy of these tools built
+against an earlier ``tcslog`` goes on working for the formats that
+release reads; this says which release they are built against from here.
 
 Installing
 ----------

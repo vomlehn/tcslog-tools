@@ -14,18 +14,18 @@ same stored format, so these tools read a log whichever of them wrote it.
 
 Both tools only read. They take `tcslog` with its default `write` feature
 turned off, so neither needs the `TIMER_RESOLUTION` the writing side
-requires at build time. The library's last two breaking changes have both
-been outside what these use: `WriteCallbacks` became a trait in 0.3.0,
-where it had been a structure of function pointers, which breaks every
-caller that writes; and `Record` gained a field in 0.4.0, which breaks a
-caller that builds or exhaustively destructures one. Neither tool writes,
-and neither names `Record` — both read through `LogRead::read` into a
-buffer of their own.
+requires at build time. The library's breaking changes have been outside
+what these use, or only in their tests: `WriteCallbacks` became a trait
+in 0.3.0, which breaks every caller that writes; `Record` gained a field
+in 0.4.0, and `SegmentHeader` one in 0.6.0, which break a caller that
+builds one. Neither tool writes or builds either — both read through
+`LogRead::read` into a buffer of their own — and 0.7.0's rename of the C
+library is nothing to them.
 
-The library version required is 0.4. That version, not this crate's, is what
+The library version required is 0.7. That version, not this crate's, is what
 decides which stored segment file formats a build understands: it reads a
 file whose major format version matches the library's and whose minor
-version is no greater.
+version is no greater, which for 0.7 is formats 1.0 and 1.1.
 
 ## Integration with cFS and F´
 
@@ -91,8 +91,9 @@ stage`), so they hold the same files. That install strips both binaries
 with `strip --strip-unneeded`, about a quarter off each; `STRIP=0` keeps
 them as cargo built them, for a debugger. The `-1` is the package's
 release, `DEB_REVISION` for both, for a package rebuilt from the same
-source. Building them needs `rst2html` (`python3-docutils`) and
-`dpkg-shlibdeps` (`dpkg-dev`). `make rpm` needs `rpmbuild` (`sudo apt
+source. Building them needs `rst2html` (`python3-docutils`), which
+`make docs` and `make install-files` need too, and `dpkg-shlibdeps`
+(`dpkg-dev`). `make rpm` needs `rpmbuild` (`sudo apt
 install rpm` on Debian) and says so, without failing, where it is
 missing, as `make deb` does without `dpkg-deb`. A package also installs
 `/etc/profile.d/tcslog-tools.sh`, which adds `/opt/tcs/bin` to `PATH`
@@ -203,14 +204,39 @@ failure exits 1 and a usage error exits 2.
 The `tcslog` dependency is a path to a sibling checkout, and installing and
 packaging use [tcs-helpers](https://github.com/vomlehn/tcs-helpers), the
 packaging scripts and make rules the TCS projects share, from a sibling
-checkout too, so clone all three side by side:
+checkout too, so clone all three side by side, each under its own name:
+the path is `../tcslog/tcslog`, so a `tcslog` checkout named otherwise is
+not found.
+
+Building needs a Rust toolchain, 1.75 or later, with `clippy` and
+`rustfmt` for `make check`; `rst2html` (`python3-docutils`) for the
+manual's page, which `make docs`, `make install-files` and the packages
+make; Python 3.11 or later and the tcs-helpers checkout for `make check`'s
+name check, and for installing and packaging; and, to package,
+`dpkg-dev`, and `rpm` for the RPM. tcslog's `make install-tools`, from
+the checkout beside this one, installs them all; this repository has no
+script of its own.
 
 ```sh
 git clone https://github.com/vomlehn/tcslog.git
 git clone https://github.com/vomlehn/tcs-helpers.git
 git clone https://github.com/vomlehn/tcslog-tools.git
-cd tcslog-tools && cargo build
+cd tcslog-tools
+cargo build       # both tools, into target/debug
+make test         # their tests: cargo test
+make check        # cargo check, clippy, rustfmt, and the name check
+make docs         # docs/tcslog-tools.html, from docs/tcslog-tools.rst
+make release      # test, then build optimised into target/release
 ```
+
+`make help` lists the rest: `format`, `hooks`, which has git run
+tcs-helpers' pre-commit hook, and `clean`. There is no `make all`: plain
+`make` prints the help. `make portable-packages` builds the packages in a
+Podman container on Ubuntu 22.04, so that they install on systems as old
+as that, and `make publish-release` publishes them as a GitHub release
+with `gh`: these are tcs-helpers', whose README says what they need.
+`bin/make-releases`, with `gh` too, gives each tag already pushed its
+GitHub release and notes.
 
 `cargo publish` substitutes the registry version for the `tcslog` path, so
 a release does not depend on the layout. tcs-helpers is used where it is
